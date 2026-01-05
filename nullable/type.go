@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"types/cast"
 )
 
 // Type представляет универсальный обнуляемый тип, который может содержать значение типа T или быть нулевым
@@ -109,15 +110,12 @@ func (t *Type[T]) Scan(value any) error {
 		return nil
 	}
 
-	// Преобразование считанного значения в целевой тип
-	convertedValue, ok := value.(T)
-	if !ok {
-		// Если прямое преобразование не удалось, возможно, нам нужно обработать конкретные преобразования типов
-		// Например, преобразование из типов базы данных в целевой тип
-		return fmt.Errorf("не удается сканировать %T в Type[%T]", value, t.V)
+	var err error
+	t.V, err = cast.To[T](value)
+	if err != nil {
+		t.Valid = false
+		return err
 	}
-
-	t.V = convertedValue
 	t.Valid = true
 	return nil
 }

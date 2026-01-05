@@ -27,8 +27,8 @@ func TestInsert(t *testing.T) {
 		if !sl.Search(v) {
 			t.Errorf("SkipList should contain inserted value %s", v)
 		}
-		if sl.Size() != countInsertedValues(sl, values[:indexOf(values, v)+1]) {
-			t.Errorf("SkipList size should be %d after inserting %d values, got %d", countInsertedValues(sl, values[:indexOf(values, v)+1]), indexOf(values, v)+1, sl.Size())
+		if sl.Size() != countInsertedValues(values[:indexOf(values, v)+1]) {
+			t.Errorf("SkipList size should be %d after inserting %d values, got %d", countInsertedValues(values[:indexOf(values, v)+1]), indexOf(values, v)+1, sl.Size())
 		}
 	}
 }
@@ -160,7 +160,7 @@ func indexOf(slice any, item any) int {
 }
 
 // Вспомогательная функция для подсчета количества уникальных вставленных значений
-func countInsertedValues(sl *List[string], values []string) int {
+func countInsertedValues(values []string) int {
 	count := 0
 	seen := make(map[string]bool)
 	for _, word := range values {
