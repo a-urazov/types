@@ -43,7 +43,7 @@ func TestRegisterAndResolveSingleton(t *testing.T) {
 	ctx := New()
 
 	// Регистрируем Logger как Singleton
-	err := RegisterSingleton[Logger](ctx, func(c *Context) (interface{}, error) {
+	err := RegisterSingleton[Logger](ctx, func(c *Context) (any, error) {
 		return &SimpleLogger{name: "test"}, nil
 	})
 	if err != nil {
@@ -72,7 +72,7 @@ func TestRegisterAndResolveTransient(t *testing.T) {
 	ctx := New()
 
 	// Регистрируем Logger как Transient
-	err := RegisterTransient[Logger](ctx, func(c *Context) (interface{}, error) {
+	err := RegisterTransient[Logger](ctx, func(c *Context) (any, error) {
 		return &SimpleLogger{name: "test"}, nil
 	})
 	if err != nil {
@@ -132,7 +132,7 @@ func TestResolveMissingDependency(t *testing.T) {
 func TestDuplicateRegistration(t *testing.T) {
 	ctx := New()
 
-	constructor := func(c *Context) (interface{}, error) {
+	constructor := func(c *Context) (any, error) {
 		return &SimpleLogger{}, nil
 	}
 
@@ -155,7 +155,7 @@ func TestContains(t *testing.T) {
 		t.Error("Logger не должен быть зарегистрирован")
 	}
 
-	RegisterSingleton[Logger](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[Logger](ctx, func(c *Context) (any, error) {
 		return &SimpleLogger{}, nil
 	})
 
@@ -172,7 +172,7 @@ func TestGetServices(t *testing.T) {
 		t.Errorf("изначально должно быть 0 зависимостей, получено %d", count)
 	}
 
-	RegisterSingleton[Logger](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[Logger](ctx, func(c *Context) (any, error) {
 		return &SimpleLogger{}, nil
 	})
 
@@ -180,7 +180,7 @@ func TestGetServices(t *testing.T) {
 		t.Errorf("должна быть 1 зависимость, получено %d", count)
 	}
 
-	RegisterSingleton[Database](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[Database](ctx, func(c *Context) (any, error) {
 		return &MockDatabase{}, nil
 	})
 
@@ -194,17 +194,17 @@ func TestNestedDependencies(t *testing.T) {
 	ctx := New()
 
 	// Регистрируем Logger
-	RegisterSingleton[Logger](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[Logger](ctx, func(c *Context) (any, error) {
 		return &SimpleLogger{name: "logger"}, nil
 	})
 
 	// Регистрируем Database
-	RegisterSingleton[Database](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[Database](ctx, func(c *Context) (any, error) {
 		return &MockDatabase{}, nil
 	})
 
 	// Регистрируем Service, который зависит от Logger и Database
-	RegisterSingleton[*Service](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[*Service](ctx, func(c *Context) (any, error) {
 		logger, err := Resolve[Logger](c)
 		if err != nil {
 			return nil, err
@@ -239,7 +239,7 @@ func TestNestedDependencies(t *testing.T) {
 // BenchmarkResolve измеряет производительность разрешения зависимостей
 func BenchmarkResolve(b *testing.B) {
 	ctx := New()
-	RegisterSingleton[Logger](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[Logger](ctx, func(c *Context) (any, error) {
 		return &SimpleLogger{name: "benchmark"}, nil
 	})
 
@@ -252,7 +252,7 @@ func BenchmarkResolve(b *testing.B) {
 // BenchmarkResolveTransient измеряет производительность разрешения Transient зависимостей
 func BenchmarkResolveTransient(b *testing.B) {
 	ctx := New()
-	RegisterTransient[Logger](ctx, func(c *Context) (interface{}, error) {
+	RegisterTransient[Logger](ctx, func(c *Context) (any, error) {
 		return &SimpleLogger{name: "benchmark"}, nil
 	})
 
@@ -412,7 +412,7 @@ func TestContextDIWithContextMethods(t *testing.T) {
 	ctx.SetValue("appName", "TestApp")
 
 	// Регистрируем сервис, который использует значение из контекста
-	RegisterSingleton[*Service](ctx, func(c *Context) (interface{}, error) {
+	RegisterSingleton[*Service](ctx, func(c *Context) (any, error) {
 		// Получаем значение из контекста
 		appName := c.Value("appName")
 
