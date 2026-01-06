@@ -11,89 +11,87 @@ import (
 	"types/channel"
 )
 
-func TestChannel(t *testing.T) {
-	t.Run("Send and Receive", func(t *testing.T) {
-		ch := channel.New[int](0)
-		go func() {
-			err := ch.Send(context.Background(), 1)
-			if err != nil {
-				t.Errorf("Send error: %v", err)
-			}
-		}()
-
-		val, err := ch.Receive(context.Background())
-		if err != nil {
-			t.Fatalf("Receive error: %v", err)
-		}
-		if val != 1 {
-			t.Errorf("Expected 1, got %d", val)
-		}
-	})
-
-	t.Run("Buffered Channel", func(t *testing.T) {
-		ch := channel.New[int](1)
+func TestChannelSendAndReceive(t *testing.T) {
+	ch := channel.New[int](0)
+	go func() {
 		err := ch.Send(context.Background(), 1)
 		if err != nil {
-			t.Fatalf("Send error: %v", err)
+			t.Errorf("Send error: %v", err)
 		}
+	}()
 
-		val, err := ch.Receive(context.Background())
-		if err != nil {
-			t.Fatalf("Receive error: %v", err)
-		}
-		if val != 1 {
-			t.Errorf("Expected 1, got %d", val)
-		}
+	val, err := ch.Receive(context.Background())
+	if err != nil {
+		t.Fatalf("Receive error: %v", err)
+	}
+	if val != 1 {
+		t.Errorf("Expected 1, got %d", val)
+	}
+}
+
+func TestChannelBuffered(t *testing.T) {
+	ch := channel.New[int](1)
+	err := ch.Send(context.Background(), 1)
+	if err != nil {
+		t.Fatalf("Send error: %v", err)
+	}
+
+	val, err := ch.Receive(context.Background())
+	if err != nil {
+		t.Fatalf("Receive error: %v", err)
+	}
+	if val != 1 {
+		t.Errorf("Expected 1, got %d", val)
+	}
+}
+
+func TestChannelClose(t *testing.T) {
+	ch := channel.New[int](0)
+	ch.Close()
+
+	err := ch.Send(context.Background(), 1)
+	if err != channel.ErrClosedChannel {
+		t.Errorf("Expected ErrClosedChannel, got %v", err)
+	}
+
+	_, err = ch.Receive(context.Background())
+	if err != channel.ErrClosedChannel {
+		t.Errorf("Expected ErrClosedChannel, got %v", err)
+	}
+}
+
+func TestChannelContextCancellation(t *testing.T) {
+	ch := channel.New[int](0)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := ch.Send(ctx, 1)
+	if err != context.Canceled {
+		t.Errorf("Expected context.Canceled, got %v", err)
+	}
+
+	_, err = ch.Receive(ctx)
+	if err != context.Canceled {
+		t.Errorf("Expected context.Canceled, got %v", err)
+	}
+}
+
+func TestChannelRange(t *testing.T) {
+	ch := channel.New[int](3)
+	ch.Send(context.Background(), 1)
+	ch.Send(context.Background(), 2)
+	ch.Send(context.Background(), 3)
+	ch.Close()
+
+	var sum int
+	ch.Range(func(val int) bool {
+		sum += val
+		return true
 	})
 
-	t.Run("Close", func(t *testing.T) {
-		ch := channel.New[int](0)
-		ch.Close()
-
-		err := ch.Send(context.Background(), 1)
-		if err != channel.ErrClosedChannel {
-			t.Errorf("Expected ErrClosedChannel, got %v", err)
-		}
-
-		_, err = ch.Receive(context.Background())
-		if err != channel.ErrClosedChannel {
-			t.Errorf("Expected ErrClosedChannel, got %v", err)
-		}
-	})
-
-	t.Run("Context Cancellation", func(t *testing.T) {
-		ch := channel.New[int](0)
-		ctx, cancel := context.WithCancel(context.Background())
-		cancel()
-
-		err := ch.Send(ctx, 1)
-		if err != context.Canceled {
-			t.Errorf("Expected context.Canceled, got %v", err)
-		}
-
-		_, err = ch.Receive(ctx)
-		if err != context.Canceled {
-			t.Errorf("Expected context.Canceled, got %v", err)
-		}
-	})
-
-	t.Run("Range", func(t *testing.T) {
-		ch := channel.New[int](3)
-		ch.Send(context.Background(), 1)
-		ch.Send(context.Background(), 2)
-		ch.Send(context.Background(), 3)
-		ch.Close()
-
-		var sum int
-		ch.Range(func(val int) bool {
-			sum += val
-			return true
-		})
-
-		if sum != 6 {
-			t.Errorf("Expected sum 6, got %d", sum)
-		}
-	})
+	if sum != 6 {
+		t.Errorf("Expected sum 6, got %d", sum)
+	}
 }
 
 func BenchmarkChannel(b *testing.B) {
@@ -105,7 +103,9 @@ func BenchmarkChannel(b *testing.B) {
 			}
 			ch.Close()
 		}()
+		// Consume all values from the channel (benchmark only needs to measure send performance)
 		for range ch.Unwrap() {
+			// Intentionally empty - just consuming values
 		}
 	})
 
@@ -117,7 +117,9 @@ func BenchmarkChannel(b *testing.B) {
 			}
 			ch.Close()
 		}()
+		// Consume all values from the channel (benchmark only needs to measure send performance)
 		for range ch.Unwrap() {
+			// Intentionally empty - just consuming values
 		}
 	})
 }

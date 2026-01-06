@@ -63,7 +63,7 @@ func search[T cmp.Ordered](node *Node[T], value T) bool {
 // Delete удаляет значение из BST.
 // Возвращает true, если значение было найдено и удалено, иначе false.
 func (bst *Tree[T]) Delete(value T) bool {
-	deleted := false
+	var deleted bool
 	bst.root, deleted = delete(bst.root, value)
 	return deleted
 }
