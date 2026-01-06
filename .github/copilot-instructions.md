@@ -1,53 +1,118 @@
-# Библиотека типов Go - Инструкции по кодированию для ИИ
+# Go Types Library - AI Coding Agent Instructions
 
-Этот документ представляет собой руководство для агентов ИИ, вносящих вклад в библиотеку типов Go.
+This document guides AI agents contributing to the Go types library, providing essential context for immediate productivity.
 
-## Обзор проекта
+## Project Overview
 
-Это библиотека Go, предоставляющая коллекцию обобщенных структур данных и тип `Nullable` для обработки необязательных значений. Цель состоит в том, чтобы предложить надежные, хорошо протестированные и идиоматичные строительные блоки для Go.
+This is a Go library providing generic data structures and a `Nullable` type for handling optional values. The goal is to offer robust, well-tested, and idiomatic building blocks for Go applications.
 
-## Архитектура
+**Module Path**: `types` (Go 1.25+)
 
-- Репозиторий представляет собой стандартный модуль Go. Путь к модулю можно найти в файле `go.mod`.
-- Кодовая база организована в несколько пакетов:
-    - `collections/`: Содержит различные обобщенные структуры данных, такие как `List`, `Queue`, `Dictionary`, `HashSet`, `PriorityQueue` и т.д. Каждая структура данных находится в своем собственном подкаталоге.
-    - `nullable/`: Предоставляет обобщенный тип `Type[T any]` для обработки значений, которые могут быть `nil`. Это особенно полезно при взаимодействии с базами данных и сериализации JSON.
-    - `sort/`: Содержит вспомогательные функции, связанные с сортировкой.
+## Architecture & Key Components
 
-## Ключевые шаблоны и соглашения
+### Core Packages
+- **`collections/`**: Thread-safe generic data structures, each in its own subdirectory
+  - Basic: `List`, `Queue`, `Stack`, `Set`, `Dictionary`
+  - Advanced: `SortedSet`, `BitSet`, `BloomFilter`, `LRUCache`, `DisjointSet`, `SegmentTree`
+  - Specialized variants: `queue/deque`, `queue/priority`, `queue/ring`, `dictionary/sorted`
+- **`nullable/`**: Generic `Type[T]` for optional values with JSON/database integration
+- **`cast/`**: Type conversion utilities with reflection-based casting
+- **`sort/`**: Generic sorting helpers for slices
+- **`internal/common/`**: Shared utilities like thread-safe `Vector[T]`
 
-### Тестирование
-- Каждый пакет (например, `collections/list`) содержит свои собственные тесты в соответствующем файле `_test.go` (например, `list_test.go`).
-- При добавлении новой функциональности или исправлении ошибки, пожалуйста, добавляйте или обновляйте тесты соответствующим образом.
-- Чтобы запустить все тесты для всего проекта, выполните `go test ./...` из корневого каталога.
-- Чтобы запустить тесты для определенного пакета, вы можете выполнить `go test` в каталоге этого пакета.
+### Concurrency Pattern
+All collection types are **thread-safe by default** using embedded mutexes:
+- Use `sync.Mutex` for write-heavy operations (e.g., `DisjointSet`)
+- Use `sync.RWMutex` for read-heavy operations (e.g., `BitSet`, `LRUCache`)
+- Mutex is always embedded as `mutex` or `mu` field
 
-### Обобщения (Generics)
-- Библиотека активно использует обобщения Go (параметры типа), представленные в Go 1.18.
-- При реализации новых структур данных или изменении существующих следует использовать обобщения, чтобы обеспечить их типобезопасность и гибкость.
-- **Пример (`nullable.Type`):**
+## Critical Developer Workflows
+
+### Testing
+- **Per-package tests**: Each structure has `_test.go` files (e.g., `disjointset_test.go`)
+- **Run all tests**: `go test ./...` or `make test`
+- **Test structure**: Focus on edge cases, concurrency safety, and method contracts
+
+### Linting & Formatting
+- **Lint**: `make lint` or `golangci-lint run ./...`
+- **Auto-fix**: `make lint-fix` 
+- **Format**: Code must pass `gofmt` (handled automatically by IDE)
+
+### Dependencies
+- **Add/update deps**: Run `go mod tidy` after changes
+- **No external deps**: Core collections avoid third-party dependencies for minimal footprint
+
+## Project-Specific Patterns
+
+### Generics Usage
+- **All collections use generics** with appropriate constraints:
+  - `comparable` for keys/maps/sets
+  - `any` for values when no constraints needed
+- **Example**:
   ```go
-  // nullable.Type[T] может оборачивать любой тип.
-  var name nullable.Type[string]
-  var age nullable.Type[int]
+  // DisjointSet with comparable elements
+  ds := disjointset.New[string]()
+  
+  // LRUCache with comparable keys, any values
+  cache := lrucache.New[string, int](100)
   ```
 
-### Тип `nullable`
-- При работе с необязательными полями, особенно в контексте записей базы данных или JSON API, всегда используйте `nullable.Type[T]`.
-- Он корректно обрабатывает значения `nil` во время маршалинга/анмаршалинга JSON и сканирования из драйвера базы данных.
-- **Ключевые методы:**
-    - `New(value T)`: Создает новый не-null `Type[T]`.
-    - `IsNull() bool`: Проверяет, является ли значение null.
-    - `Get() (T, bool)`: Возвращает значение и логическое значение, указывающее на его наличие.
-    - `Or(defaultValue T) T`: Возвращает значение, если оно присутствует, в противном случае возвращает значение по умолчанию.
+### Nullable Type Integration
+Use `nullable.Type[T]` for optional fields, especially with JSON/database:
+```go
+// Database model example
+type User struct {
+    ID    int                    `json:"id"`
+    Name  nullable.Type[string]  `json:"name"`
+    Email nullable.Type[string]  `json:"email"`
+}
 
-### Стиль кода
-- Следуйте стандартному форматированию и стилю Go, обеспечиваемому `gofmt`.
-- Пишите ясный, идиоматичный код на Go.
+// Usage
+user := User{
+    ID: 1,
+    Name: nullable.New("John"),
+    Email: nullable.New[string](), // null value
+}
+```
 
-## Рабочий процесс разработчика
+### Error Handling
+- **Panic on invalid usage**: Methods panic for programmer errors (e.g., `nullable.New()` with >1 arg)
+- **Return errors for runtime issues**: Operations that can fail at runtime return `(result, error)`
 
-1.  **Получение зависимостей:** Выполните `go mod tidy`, если вы добавляете или обновляете зависимости.
-2.  **Написание кода:** Реализуйте свою функцию или исправьте ошибку.
-3.  **Написание тестов:** Добавьте или обновите модульные тесты в соответствующем файле `_test.go`.
-4.  **Запуск тестов:** Выполните `go test ./...` из корневого каталога, чтобы убедиться, что все тесты проходят.
+### Internal Package Usage
+- **`internal/common/mutex.go`** provides `RWLocker` interface and `Vector[T]` for shared mutex patterns
+- Only use internal packages when implementing new collections that need consistent concurrency patterns
+
+## Implementation Guidelines
+
+### When Adding New Collections
+1. Create subdirectory under `collections/` (e.g., `collections/fenwicktree/`)
+2. Implement thread-safe methods with appropriate mutex strategy
+3. Add comprehensive tests in `{name}_test.go`
+4. Update `collections/README.md` with new structure
+5. Follow existing naming conventions (`New()`, `Size()`, `IsEmpty()`, etc.)
+
+### Code Style
+- **Method names**: Use clear, descriptive names (e.g., `MakeSet`, `Union`, `FindRoot`)
+- **Documentation**: Every public type/method must have Go doc comments
+- **Performance**: Optimize for common cases while maintaining correctness
+- **Memory**: Minimize allocations in hot paths; reuse buffers when possible
+
+### Testing Requirements
+- **Concurrency tests**: Include goroutine-based tests for thread safety
+- **Edge cases**: Test empty states, boundary conditions, and error scenarios
+- **Benchmark tests**: Add benchmarks for performance-critical operations
+
+## Key Files for Reference
+- **Concurrency pattern**: `internal/common/mutex.go`
+- **Nullable implementation**: `nullable/type.go` 
+- **Generic constraints**: Check individual collection files for constraint examples
+- **Test patterns**: `collections/disjointset/disjointset_test.go`
+- **Build workflow**: `Makefile` and `scripts/lint.ps1`
+
+## Anti-Patterns to Avoid
+- ❌ Non-thread-safe collections (all must be safe by default)
+- ❌ External dependencies in core collections
+- ❌ Inconsistent method naming across similar structures
+- ❌ Missing test coverage for concurrent access scenarios
+- ❌ Unnecessary memory allocations in performance-critical paths
