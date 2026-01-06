@@ -26,15 +26,15 @@ func NewVector[T any]() *Vector[T] {
 	}
 }
 
-// WithWriteLock executes the given function with write lock
-func (s *Vector[T]) WithWriteLock(fn func(items []T) []T) {
+// WriteLock executes the given function with write lock
+func (s *Vector[T]) WriteLock(fn func(items []T) []T) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.items = fn(s.items)
 }
 
-// WithReadLock executes the given function with read lock
-func (s *Vector[T]) WithReadLock(fn func(items []T)) {
+// ReadLock executes the given function with read lock
+func (s *Vector[T]) ReadLock(fn func(items []T)) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	fn(s.items)
@@ -77,15 +77,15 @@ func NewMap[K comparable, V any]() *Map[K, V] {
 	}
 }
 
-// WithWriteLock executes the given function with write lock
-func (m *Map[K, V]) WithWriteLock(fn func(items map[K]V) map[K]V) {
+// WriteLock executes the given function with write lock
+func (m *Map[K, V]) WriteLock(fn func(items map[K]V) map[K]V) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.items = fn(m.items)
 }
 
-// WithReadLock executes the given function with read lock
-func (m *Map[K, V]) WithReadLock(fn func(items map[K]V)) {
+// ReadLock executes the given function with read lock
+func (m *Map[K, V]) ReadLock(fn func(items map[K]V)) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	fn(m.items)
