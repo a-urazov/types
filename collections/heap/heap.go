@@ -3,6 +3,7 @@ package heap
 import (
 	"container/heap"
 	"sync"
+	"types/collections/list"
 )
 
 // Comparator - это функция сравнения, которая определяет порядок элементов в куче.
@@ -12,36 +13,38 @@ type Comparator[T any] func(a, b T) bool
 
 // internalHeap - это внутренняя реализация для нашей кучи.
 type internalHeap[T any] struct {
-	elements   []T
+	elements   *list.List[T]
 	comparator Comparator[T]
 }
 
 // Len возвращает количество элементов.
-func (h internalHeap[T]) Len() int { return len(h.elements) }
+func (h internalHeap[T]) Len() int { return h.elements.Size() }
 
 // Less сравнивает два элемента.
 func (h internalHeap[T]) Less(i, j int) bool {
-	return h.comparator(h.elements[i], h.elements[j])
+	itemI, _ := h.elements.Get(i)
+	itemJ, _ := h.elements.Get(j)
+	return h.comparator(itemI, itemJ)
 }
 
 // Swap меняет местами два элемента.
 func (h internalHeap[T]) Swap(i, j int) {
-	h.elements[i], h.elements[j] = h.elements[j], h.elements[i]
+	itemI, _ := h.elements.Get(i)
+	itemJ, _ := h.elements.Get(j)
+	h.elements.Set(i, itemJ)
+	h.elements.Set(j, itemI)
 }
 
 // Push добавляет элемент в кучу.
 func (h *internalHeap[T]) Push(x any) {
-	h.elements = append(h.elements, x.(T))
+	h.elements.Add(x.(T))
 }
 
 // Pop удаляет элемент из кучи.
 func (h *internalHeap[T]) Pop() any {
-	old := h.elements
-	n := len(old)
-	x := old[n-1]
-	var zero T
-	old[n-1] = zero // Избегаем утечки памяти
-	h.elements = old[0 : n-1]
+	n := h.elements.Size()
+	x, _ := h.elements.Get(n - 1)
+	h.elements.RemoveAt(n - 1)
 	return x
 }
 
@@ -55,7 +58,7 @@ type Heap[T any] struct {
 func New[T any](comparator Comparator[T]) *Heap[T] {
 	h := &Heap[T]{
 		internal: &internalHeap[T]{
-			elements:   make([]T, 0),
+			elements:   list.New[T](),
 			comparator: comparator,
 		},
 	}
@@ -89,7 +92,7 @@ func (h *Heap[T]) Peek() (T, bool) {
 		var zero T
 		return zero, false
 	}
-	return h.internal.elements[0], true
+	return h.internal.elements.Get(0)
 }
 
 // Size возвращает количество элементов в куче.
