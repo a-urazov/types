@@ -1,93 +1,104 @@
 package dictionary
 
-import "sync"
+import (
+	"types/internal/common"
+)
 
 // Dictionary представляет собой универсальный словарь/карту.
 type Dictionary[TKey comparable, TValue any] struct {
-	items map[TKey]TValue
-	mu    sync.RWMutex
+	items *common.Map[TKey, TValue]
 }
 
 // New создает новый словарь.
 func New[TKey comparable, TValue any]() *Dictionary[TKey, TValue] {
 	return &Dictionary[TKey, TValue]{
-		items: make(map[TKey]TValue),
+		items: common.NewMap[TKey, TValue](),
 	}
 }
 
 // Set добавляет или обновляет пару ключ-значение.
 func (d *Dictionary[TKey, TValue]) Set(key TKey, value TValue) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-	d.items[key] = value
+	d.items.WithWriteLock(func(items map[TKey]TValue) map[TKey]TValue {
+		items[key] = value
+		return items
+	})
 }
 
 // Get извлекает значение по его ключу.
 func (d *Dictionary[TKey, TValue]) Get(key TKey) (TValue, bool) {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
-	val, ok := d.items[key]
+	var val TValue
+	var ok bool
+	d.items.WithReadLock(func(items map[TKey]TValue) {
+		val, ok = items[key]
+	})
 	return val, ok
 }
 
 // Remove удаляет пару ключ-значение. Возвращает true, если ключ существовал.
 func (d *Dictionary[TKey, TValue]) Remove(key TKey) bool {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-	_, ok := d.items[key]
-	if ok {
-		delete(d.items, key)
-	}
-	return ok
+	var existed bool
+	d.items.WithWriteLock(func(items map[TKey]TValue) map[TKey]TValue {
+		if _, ok := items[key]; ok {
+			existed = true
+			delete(items, key)
+		}
+		return items
+	})
+	return existed
 }
 
 // ContainsKey проверяет, существует ли ключ в словаре.
 func (d *Dictionary[TKey, TValue]) ContainsKey(key TKey) bool {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
-	_, ok := d.items[key]
+	var ok bool
+	d.items.WithReadLock(func(items map[TKey]TValue) {
+		_, ok = items[key]
+	})
 	return ok
 }
 
 // Keys возвращает срез всех ключей.
 func (d *Dictionary[TKey, TValue]) Keys() []TKey {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
-	keys := make([]TKey, 0, len(d.items))
-	for k := range d.items {
-		keys = append(keys, k)
-	}
+	var keys []TKey
+	d.items.WithReadLock(func(items map[TKey]TValue) {
+		keys = make([]TKey, 0, len(items))
+		for k := range items {
+			keys = append(keys, k)
+		}
+	})
 	return keys
 }
 
 // Values возвращает срез всех значений.
 func (d *Dictionary[TKey, TValue]) Values() []TValue {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
-	values := make([]TValue, 0, len(d.items))
-	for _, v := range d.items {
-		values = append(values, v)
-	}
+	var values []TValue
+	d.items.WithReadLock(func(items map[TKey]TValue) {
+		values = make([]TValue, 0, len(items))
+		for _, v := range items {
+			values = append(values, v)
+		}
+	})
 	return values
 }
 
 // Size возвращает количество элементов в словаре.
 func (d *Dictionary[TKey, TValue]) Size() int {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
-	return len(d.items)
+	var size int
+	d.items.WithReadLock(func(items map[TKey]TValue) {
+		size = len(items)
+	})
+	return size
 }
 
 // IsEmpty возвращает true, если словарь пуст.
 func (d *Dictionary[TKey, TValue]) IsEmpty() bool {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
-	return len(d.items) == 0
+	var empty bool
+	d.items.WithReadLock(func(items map[TKey]TValue) {
+		empty = len(items) == 0
+	})
+	return empty
 }
 
 // Clear очищает словарь.
 func (d *Dictionary[TKey, TValue]) Clear() {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-	d.items = make(map[TKey]TValue)
+	d.items.SetItems(make(map[TKey]TValue))
 }

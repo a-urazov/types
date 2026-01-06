@@ -1,25 +1,27 @@
 package deque
 
+import "types/collections/list"
+
 // Deque представляет двустороннюю очередь (deque).
 type Deque[T any] struct {
-	elements []T
+	elements *list.List[T]
 }
 
 // New создает и возвращает новую пустую Deque.
 func New[T any]() *Deque[T] {
 	return &Deque[T]{
-		elements: make([]T, 0),
+		elements: list.New[T](),
 	}
 }
 
 // PushFront добавляет элемент в начало очереди.
 func (d *Deque[T]) PushFront(item T) {
-	d.elements = append([]T{item}, d.elements...)
+	d.elements.Insert(0, item)
 }
 
 // PushBack добавляет элемент в конец очереди.
 func (d *Deque[T]) PushBack(item T) {
-	d.elements = append(d.elements, item)
+	d.elements.Add(item)
 }
 
 // PopFront удаляет и возвращает элемент из начала очереди.
@@ -29,8 +31,8 @@ func (d *Deque[T]) PopFront() (T, bool) {
 		var zero T
 		return zero, false
 	}
-	item := d.elements[0]
-	d.elements = d.elements[1:]
+	item, _ := d.elements.Get(0)
+	d.elements.RemoveAt(0)
 	return item, true
 }
 
@@ -41,8 +43,9 @@ func (d *Deque[T]) PopBack() (T, bool) {
 		var zero T
 		return zero, false
 	}
-	item := d.elements[len(d.elements)-1]
-	d.elements = d.elements[:len(d.elements)-1]
+	size := d.elements.Size()
+	item, _ := d.elements.Get(size - 1)
+	d.elements.RemoveAt(size - 1)
 	return item, true
 }
 
@@ -53,7 +56,7 @@ func (d *Deque[T]) Front() (T, bool) {
 		var zero T
 		return zero, false
 	}
-	return d.elements[0], true
+	return d.elements.Get(0)
 }
 
 // Back возвращает элемент из конца очереди без его удаления.
@@ -63,15 +66,16 @@ func (d *Deque[T]) Back() (T, bool) {
 		var zero T
 		return zero, false
 	}
-	return d.elements[len(d.elements)-1], true
+	size := d.elements.Size()
+	return d.elements.Get(size - 1)
 }
 
 // IsEmpty возвращает true, если очередь пуста, иначе false.
 func (d *Deque[T]) IsEmpty() bool {
-	return d.Size() == 0
+	return d.elements.IsEmpty()
 }
 
 // Size возвращает количество элементов в очереди.
 func (d *Deque[T]) Size() int {
-	return len(d.elements)
+	return d.elements.Size()
 }

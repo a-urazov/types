@@ -1,83 +1,95 @@
 package list
 
 import (
-	"sync"
+	"reflect"
+	"types/internal/common"
 	"types/sort"
 )
 
 // List представляет собой универсальный список.
-type List[T comparable] struct {
-	items []T
-	mu    sync.RWMutex
+type List[T any] struct {
+	items *common.Vector[T]
 }
 
 // New создает новый список.
-func New[T comparable]() *List[T] {
+func New[T any]() *List[T] {
 	return &List[T]{
-		items: make([]T, 0),
+		items: common.NewVector[T](),
 	}
 }
 
 // Add добавляет элемент в конец списка.
 func (l *List[T]) Add(item T) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.items = append(l.items, item)
+	l.items.WithWriteLock(func(items []T) []T {
+		return append(items, item)
+	})
 }
 
 // Insert добавляет элемент по указанному индексу.
 func (l *List[T]) Insert(index int, item T) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	if index < 0 || index > len(l.items) {
-		return false
-	}
-	l.items = append(l.items[:index], append([]T{item}, l.items[index:]...)...)
-	return true
+	var result bool
+	l.items.WithWriteLock(func(items []T) []T {
+		if index < 0 || index > len(items) {
+			result = false
+			return items
+		}
+		result = true
+		return append(items[:index], append([]T{item}, items[index:]...)...)
+	})
+	return result
 }
 
 // Remove удаляет первое вхождение элемента из списка.
 func (l *List[T]) Remove(item T) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	for i, v := range l.items {
-		if v == item {
-			l.items = append(l.items[:i], l.items[i+1:]...)
-			return true
+	var result bool
+	l.items.WithWriteLock(func(items []T) []T {
+		for i, v := range items {
+			if reflect.DeepEqual(v, item) {
+				result = true
+				return append(items[:i], items[i+1:]...)
+			}
 		}
-	}
-	return false
+		result = false
+		return items
+	})
+	return result
 }
 
 // Get возвращает элемент по указанному индексу.
 func (l *List[T]) Get(index int) (T, bool) {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	if index < 0 || index >= len(l.items) {
-		var zero T
-		return zero, false
-	}
-	return l.items[index], true
+	var result T
+	var ok bool
+	l.items.WithReadLock(func(items []T) {
+		if index < 0 || index >= len(items) {
+			var zero T
+			result = zero
+			ok = false
+			return
+		}
+		result = items[index]
+		ok = true
+	})
+	return result, ok
 }
 
 // Size возвращает количество элементов в списке.
 func (l *List[T]) Size() int {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	return len(l.items)
+	return l.items.Len()
 }
 
 // IndexOf возвращает индекс первого вхождения элемента в списке.
 // Возвращает -1, если элемент не найден.
 func (l *List[T]) IndexOf(item T) int {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	for i, v := range l.items {
-		if v == item {
-			return i
+	var result int = -1
+	l.items.WithReadLock(func(items []T) {
+		for i, v := range items {
+			if reflect.DeepEqual(v, item) {
+				result = i
+				return
+			}
 		}
-	}
-	return -1
+	})
+	return result
 }
 
 // Contains проверяет, существует ли элемент в списке.
@@ -92,78 +104,75 @@ func (l *List[T]) IsEmpty() bool {
 
 // Clear очищает список.
 func (l *List[T]) Clear() {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.items = make([]T, 0)
+	l.items.WithWriteLock(func(items []T) []T {
+		return make([]T, 0)
+	})
 }
 
 // ToSlice возвращает срез, содержащий все элементы списка.
 func (l *List[T]) ToSlice() []T {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	arr := make([]T, len(l.items))
-	copy(arr, l.items)
-	return arr
+	return l.items.GetItems()
 }
 
 // AddRange добавляет элементы из среза в список.
 func (l *List[T]) AddRange(items []T) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.items = append(l.items, items...)
+	l.items.WithWriteLock(func(existing []T) []T {
+		return append(existing, items...)
+	})
 }
 
 func (l *List[T]) RemoveAt(index int) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	if index < 0 || index >= len(l.items) {
-		return false
-	}
-	l.items = append(l.items[:index], l.items[index+1:]...)
-	return true
+	var result bool
+	l.items.WithWriteLock(func(items []T) []T {
+		if index < 0 || index >= len(items) {
+			result = false
+			return items
+		}
+		result = true
+		return append(items[:index], items[index+1:]...)
+	})
+	return result
 }
 
 func (l *List[T]) ForEach(action func(T)) {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	for _, item := range l.items {
-		action(item)
-	}
+	l.items.WithReadLock(func(items []T) {
+		for _, item := range items {
+			action(item)
+		}
+	})
 }
 
 func (l *List[T]) Filter(predicate func(T) bool) *List[T] {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
 	filtered := New[T]()
-	for _, item := range l.items {
-		if predicate(item) {
-			filtered.Add(item)
+	l.items.WithReadLock(func(items []T) {
+		for _, item := range items {
+			if predicate(item) {
+				filtered.Add(item)
+			}
 		}
-	}
+	})
 	return filtered
 }
 
 // Reverse изменяет порядок элементов в списке на обратный.
 func (l *List[T]) Reverse() {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	for i, j := 0, len(l.items)-1; i < j; i, j = i+1, j-1 {
-		l.items[i], l.items[j] = l.items[j], l.items[i]
-	}
+	l.items.WithWriteLock(func(items []T) []T {
+		for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
+			items[i], items[j] = items[j], items[i]
+		}
+		return items
+	})
 }
 
-func (l *List[T]) Sort(cmp func (a, b T) bool) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	sort.Slice[T](l.items, func(a, b T) bool {
-		return cmp(a, b)
+func (l *List[T]) Sort(cmp func(a, b T) bool) {
+	l.items.WithWriteLock(func(items []T) []T {
+		sort.Slice(items, func(a, b T) bool {
+			return cmp(a, b)
+		})
+		return items
 	})
 }
 
 func (l *List[T]) ToArray() []T {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
-	arr := make([]T, len(l.items))
-	copy(arr, l.items)
-	return arr
+	return l.items.GetItems()
 }
