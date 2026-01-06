@@ -72,6 +72,21 @@ func (l *List[T]) Get(index int) (T, bool) {
 	return result, ok
 }
 
+// Set устанавливает элемент по указанному индексу.
+func (l *List[T]) Set(index int, item T) bool {
+	var result bool
+	l.items.WriteLock(func(items []T) []T {
+		if index < 0 || index >= len(items) {
+			result = false
+			return items
+		}
+		items[index] = item
+		result = true
+		return items
+	})
+	return result
+}
+
 // Size возвращает количество элементов в списке.
 func (l *List[T]) Size() int {
 	return l.items.Len()
