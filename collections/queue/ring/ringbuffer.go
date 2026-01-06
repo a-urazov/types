@@ -2,15 +2,13 @@ package ring
 
 import (
 	"errors"
+	"types/collections/list"
 )
 
 // Buffer represents a circular buffer (ring buffer) data structure.
 type Buffer[T any] struct {
-	data     []T
-	size     int
-	readPos  int
-	writePos int
-	count    int
+	items    *list.List[T]
+	capacity int
 }
 
 // New creates and returns a new RingBuffer with the specified capacity.
@@ -19,8 +17,8 @@ func New[T any](capacity int) (*Buffer[T], error) {
 		return nil, errors.New("capacity must be greater than 0")
 	}
 	return &Buffer[T]{
-		data: make([]T, capacity),
-		size: capacity,
+		items:    list.New[T](),
+		capacity: capacity,
 	}, nil
 }
 
@@ -29,9 +27,7 @@ func (rb *Buffer[T]) Put(item T) bool {
 	if rb.IsFull() {
 		return false
 	}
-	rb.data[rb.writePos] = item
-	rb.writePos = (rb.writePos + 1) % rb.size
-	rb.count++
+	rb.items.Add(item)
 	return true
 }
 
@@ -42,9 +38,8 @@ func (rb *Buffer[T]) Get() (T, bool) {
 		var zero T
 		return zero, false
 	}
-	item := rb.data[rb.readPos]
-	rb.readPos = (rb.readPos + 1) % rb.size
-	rb.count--
+	item, _ := rb.items.Get(0)
+	rb.items.RemoveAt(0)
 	return item, true
 }
 
@@ -55,32 +50,30 @@ func (rb *Buffer[T]) Peek() (T, bool) {
 		var zero T
 		return zero, false
 	}
-	return rb.data[rb.readPos], true
+	return rb.items.Get(0)
 }
 
 // IsEmpty returns true if the buffer is empty, false otherwise.
 func (rb *Buffer[T]) IsEmpty() bool {
-	return rb.count == 0
+	return rb.items.IsEmpty()
 }
 
 // IsFull returns true if the buffer is full, false otherwise.
 func (rb *Buffer[T]) IsFull() bool {
-	return rb.count == rb.size
+	return rb.items.Size() == rb.capacity
 }
 
 // Size returns the number of elements currently in the buffer.
 func (rb *Buffer[T]) Size() int {
-	return rb.count
+	return rb.items.Size()
 }
 
 // Capacity returns the maximum number of elements the buffer can hold.
 func (rb *Buffer[T]) Capacity() int {
-	return rb.size
+	return rb.capacity
 }
 
 // Clear removes all elements from the buffer.
 func (rb *Buffer[T]) Clear() {
-	rb.readPos = 0
-	rb.writePos = 0
-	rb.count = 0
+	rb.items.Clear()
 }
