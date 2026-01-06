@@ -5,14 +5,6 @@ import (
 	"sync"
 )
 
-// RWLocker provides a common interface for read-write mutex operations
-type RWLocker interface {
-	Lock()
-	Unlock()
-	RLock()
-	RUnlock()
-}
-
 // Vector provides thread-safe operations on slices
 type Vector[T any] struct {
 	items []T
@@ -26,15 +18,15 @@ func NewVector[T any]() *Vector[T] {
 	}
 }
 
-// WriteLock executes the given function with write lock
-func (s *Vector[T]) WriteLock(fn func(items []T) []T) {
+// Lock executes the given function with write lock
+func (s *Vector[T]) Lock(fn func(items []T) []T) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.items = fn(s.items)
 }
 
-// ReadLock executes the given function with read lock
-func (s *Vector[T]) ReadLock(fn func(items []T)) {
+// RLock executes the given function with read lock
+func (s *Vector[T]) RLock(fn func(items []T)) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	fn(s.items)

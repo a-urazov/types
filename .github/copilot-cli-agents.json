@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "sessions": {
+    "8a669e94-1875-0c81-ab90-ae159a8ec410": {
+      "gemini": {
+        "cliSessionId": "b2fc9ef0-f4d2-4dfb-9acf-5a78382e203f",
+        "createdAt": "2026-01-06T22:08:30.460Z",
+        "lastUsedAt": "2026-01-06T22:08:30.460Z"
+      }
+    },
+    "c0461ed1-bf53-5b2d-108c-207008131400": {
+      "gemini": {
+        "cliSessionId": "1af422dd-ada6-4280-9f85-b71ffa4a6a4e",
+        "createdAt": "2026-01-06T22:16:23.460Z",
+        "lastUsedAt": "2026-01-06T22:21:14.996Z"
+      }
+    },
+    "ba071ea4-d9a9-31dd-1cba-857cf66362c7": {
+      "gemini": {
+        "cliSessionId": "032e956c-e1cd-450b-8b45-0869956d4c78",
+        "createdAt": "2026-01-06T22:22:15.008Z",
+        "lastUsedAt": "2026-01-06T22:25:50.870Z"
+      }
+    }
+  }
+}

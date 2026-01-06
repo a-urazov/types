@@ -20,7 +20,7 @@ func New[T any]() *List[T] {
 
 // Add добавляет элемент в конец списка.
 func (l *List[T]) Add(item T) {
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		return append(items, item)
 	})
 }
@@ -28,7 +28,7 @@ func (l *List[T]) Add(item T) {
 // Insert добавляет элемент по указанному индексу.
 func (l *List[T]) Insert(index int, item T) bool {
 	var result bool
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		if index < 0 || index > len(items) {
 			result = false
 			return items
@@ -42,7 +42,7 @@ func (l *List[T]) Insert(index int, item T) bool {
 // Remove удаляет первое вхождение элемента из списка.
 func (l *List[T]) Remove(item T) bool {
 	var result bool
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		for i, v := range items {
 			if reflect.DeepEqual(v, item) {
 				result = true
@@ -59,7 +59,7 @@ func (l *List[T]) Remove(item T) bool {
 func (l *List[T]) Get(index int) (T, bool) {
 	var result T
 	var ok bool
-	l.items.ReadLock(func(items []T) {
+	l.items.RLock(func(items []T) {
 		if index < 0 || index >= len(items) {
 			var zero T
 			result = zero
@@ -75,7 +75,7 @@ func (l *List[T]) Get(index int) (T, bool) {
 // Set устанавливает элемент по указанному индексу.
 func (l *List[T]) Set(index int, item T) bool {
 	var result bool
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		if index < 0 || index >= len(items) {
 			result = false
 			return items
@@ -96,7 +96,7 @@ func (l *List[T]) Size() int {
 // Возвращает -1, если элемент не найден.
 func (l *List[T]) IndexOf(item T) int {
 	var result int = -1
-	l.items.ReadLock(func(items []T) {
+	l.items.RLock(func(items []T) {
 		for i, v := range items {
 			if reflect.DeepEqual(v, item) {
 				result = i
@@ -119,7 +119,7 @@ func (l *List[T]) IsEmpty() bool {
 
 // Clear очищает список.
 func (l *List[T]) Clear() {
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		return make([]T, 0)
 	})
 }
@@ -131,14 +131,14 @@ func (l *List[T]) ToSlice() []T {
 
 // AddRange добавляет элементы из среза в список.
 func (l *List[T]) AddRange(items []T) {
-	l.items.WriteLock(func(existing []T) []T {
+	l.items.Lock(func(existing []T) []T {
 		return append(existing, items...)
 	})
 }
 
 func (l *List[T]) RemoveAt(index int) bool {
 	var result bool
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		if index < 0 || index >= len(items) {
 			result = false
 			return items
@@ -150,7 +150,7 @@ func (l *List[T]) RemoveAt(index int) bool {
 }
 
 func (l *List[T]) ForEach(action func(T)) {
-	l.items.ReadLock(func(items []T) {
+	l.items.RLock(func(items []T) {
 		for _, item := range items {
 			action(item)
 		}
@@ -159,7 +159,7 @@ func (l *List[T]) ForEach(action func(T)) {
 
 func (l *List[T]) Filter(predicate func(T) bool) *List[T] {
 	filtered := New[T]()
-	l.items.ReadLock(func(items []T) {
+	l.items.RLock(func(items []T) {
 		for _, item := range items {
 			if predicate(item) {
 				filtered.Add(item)
@@ -171,7 +171,7 @@ func (l *List[T]) Filter(predicate func(T) bool) *List[T] {
 
 func (l *List[T]) Reduce(initial T, reducer func(T, T) T) T {
 	var result T = initial
-	l.items.ReadLock(func(items []T) {
+	l.items.RLock(func(items []T) {
 		for _, item := range items {
 			result = reducer(result, item)
 		}
@@ -181,7 +181,7 @@ func (l *List[T]) Reduce(initial T, reducer func(T, T) T) T {
 
 // Reverse изменяет порядок элементов в списке на обратный.
 func (l *List[T]) Reverse() {
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
 			items[i], items[j] = items[j], items[i]
 		}
@@ -190,7 +190,7 @@ func (l *List[T]) Reverse() {
 }
 
 func (l *List[T]) Sort(cmp func(a, b T) bool) {
-	l.items.WriteLock(func(items []T) []T {
+	l.items.Lock(func(items []T) []T {
 		sort.Slice(items, func(a, b T) bool {
 			return cmp(a, b)
 		})
