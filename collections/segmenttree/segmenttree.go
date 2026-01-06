@@ -79,21 +79,20 @@ func (st *SegmentTree[T]) Query(left, right int) (T, bool) {
 		return zero, false
 	}
 
-	result := st.queryRange(0, 0, st.size-1, left, right)
-	return result, true
+	return st.queryRange(0, 0, st.size-1, left, right)
 }
 
 // queryRange recursively queries the segment tree
-func (st *SegmentTree[T]) queryRange(node, nodeStart, nodeEnd, queryStart, queryEnd int) T {
+func (st *SegmentTree[T]) queryRange(node, nodeStart, nodeEnd, queryStart, queryEnd int) (T, bool) {
 	// Complete overlap
 	if queryStart <= nodeStart && nodeEnd <= queryEnd {
-		return st.tree[node]
+		return st.tree[node], true
 	}
 
 	// No overlap
 	if nodeEnd < queryStart || nodeStart > queryEnd {
 		var zero T
-		return zero
+		return zero, false
 	}
 
 	// Partial overlap
@@ -101,18 +100,21 @@ func (st *SegmentTree[T]) queryRange(node, nodeStart, nodeEnd, queryStart, query
 	leftChild := 2*node + 1
 	rightChild := 2*node + 2
 
-	leftResult := st.queryRange(leftChild, nodeStart, mid, queryStart, queryEnd)
-	rightResult := st.queryRange(rightChild, mid+1, nodeEnd, queryStart, queryEnd)
+	leftResult, leftOk := st.queryRange(leftChild, nodeStart, mid, queryStart, queryEnd)
+	rightResult, rightOk := st.queryRange(rightChild, mid+1, nodeEnd, queryStart, queryEnd)
 
-	// Handle cases where one side has no overlap
-	if nodeStart > queryEnd {
-		return rightResult
+	if leftOk && rightOk {
+		return st.mergeFn(leftResult, rightResult), true
 	}
-	if nodeEnd < queryStart {
-		return leftResult
+	if leftOk {
+		return leftResult, true
+	}
+	if rightOk {
+		return rightResult, true
 	}
 
-	return st.mergeFn(leftResult, rightResult)
+	var zero T
+	return zero, false
 }
 
 // Update updates the value at the given index

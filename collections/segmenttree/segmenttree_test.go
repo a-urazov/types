@@ -82,10 +82,10 @@ func TestSegmentTreeMin(t *testing.T) {
 	if !st.Update(3, 10) {
 		t.Error("Expected Update(3, 10) to succeed")
 	}
-	if min, ok := st.Query(0, 5); !ok || min != 2 { // Now min is 2
+	if min, ok := st.Query(0, 5); !ok || min != 2 {
 		t.Errorf("Expected min 2 after update, got %d", min)
 	}
-	if min, ok := st.Query(3, 5); !ok || min != 3 { // Range [3,5] = [10,9,3], min=3
+	if min, ok := st.Query(3, 5); !ok || min != 3 {
 		t.Errorf("Expected min 3 for range [3,5] after update, got %d", min)
 	}
 }
@@ -112,10 +112,10 @@ func TestSegmentTreeMax(t *testing.T) {
 	if !st.Update(4, 4) {
 		t.Error("Expected Update(4, 4) to succeed")
 	}
-	if max, ok := st.Query(0, 5); !ok || max != 8 { // Now max is 8
+	if max, ok := st.Query(0, 5); !ok || max != 8 {
 		t.Errorf("Expected max 8 after update, got %d", max)
 	}
-	if max, ok := st.Query(3, 5); !ok || max != 4 { // Range [3,5] = [1,4,3], max=4
+	if max, ok := st.Query(3, 5); !ok || max != 4 {
 		t.Errorf("Expected max 4 for range [3,5] after update, got %d", max)
 	}
 }
@@ -234,10 +234,10 @@ func TestSegmentTreeResize(t *testing.T) {
 	if st.Size() != 5 {
 		t.Errorf("Expected size 5 after resize, got %d", st.Size())
 	}
-	if sum, ok := st.Query(0, 2); !ok || sum != 6 { // Original data preserved
+	if sum, ok := st.Query(0, 2); !ok || sum != 6 {
 		t.Errorf("Expected sum 6 for original range, got %d", sum)
 	}
-	if sum, ok := st.Query(3, 4); !ok || sum != 0 { // New elements are zero
+	if sum, ok := st.Query(3, 4); !ok || sum != 0 {
 		t.Errorf("Expected sum 0 for new range, got %d", sum)
 	}
 
@@ -246,7 +246,7 @@ func TestSegmentTreeResize(t *testing.T) {
 	if st.Size() != 2 {
 		t.Errorf("Expected size 2 after resize, got %d", st.Size())
 	}
-	if sum, ok := st.Query(0, 1); !ok || sum != 3 { // First 2 elements preserved
+	if sum, ok := st.Query(0, 1); !ok || sum != 3 {
 		t.Errorf("Expected sum 3 for resized range, got %d", sum)
 	}
 
