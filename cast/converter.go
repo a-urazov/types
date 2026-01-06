@@ -25,8 +25,8 @@ func (cf ConvertFunc) Convert(source any) (any, error) {
 // To преобразует значение в целевой тип To
 // Использует встроенные преобразования или JSON маршалинг/анмаршалинг
 // Тип источника определяется динамически в runtime
-func To[To any](value any) (To, error) {
-	var zero To
+func To[T any](value any) (T, error) {
+	var zero T
 
 	// Если значение nil, возвращаем нулевое значение
 	if value == nil {
@@ -39,13 +39,13 @@ func To[To any](value any) (To, error) {
 
 	// Если типы одинаковые, просто конвертируем
 	if fromType == toType {
-		return value.(To), nil
+		return value.(T), nil
 	}
 
 	// Пытаемся преобразовать через reflect, если возможно
 	if fromType != nil && fromType.ConvertibleTo(toType) {
 		fromVal := reflect.ValueOf(value)
-		return fromVal.Convert(toType).Interface().(To), nil
+		return fromVal.Convert(toType).Interface().(T), nil
 	}
 
 	// Пытаемся преобразовать через JSON
@@ -54,7 +54,7 @@ func To[To any](value any) (To, error) {
 		return zero, fmt.Errorf("ошибка маршалинга в JSON: %w", err)
 	}
 
-	var result To
+	var result T
 	err = json.Unmarshal(jsonData, &result)
 	if err != nil {
 		return zero, fmt.Errorf("ошибка анмаршалинга из JSON: %w", err)
