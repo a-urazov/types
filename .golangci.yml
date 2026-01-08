@@ -24,7 +24,7 @@ linters:
   # В v2 используется более строгий подход к включению линтеров
   enable-all: false
   disable-all: false
-  fast: false
+  fast: true
 
   enable:
     - bodyclose

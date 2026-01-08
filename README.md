@@ -21,7 +21,7 @@
     - Методы: `Push`, `Pop`, `Peek`, `Size`, `IsEmpty`
   - **[Tree](collections/tree/README.md)**: Структуры данных деревьев.
     - Методы: `Insert`, `Delete`, `Search`, `Size`, `IsEmpty`
-    - Подтипы: `BST`, `BTree`, `Trie`
+    - Подтипы: `BST`, `BTree`, `Trie`, `Red-Black Tree`
   - **[Graph](collections/graph/README.md)**: Неориентированный граф.
     - Методы: `AddVertex`, `AddEdge`, `RemoveVertex`, `RemoveEdge`, `Size`, `IsEmpty`
   - **[DisjointSet](collections/disjointset/README.md)**: Система непересекающихся множеств.

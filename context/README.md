@@ -21,7 +21,7 @@
 ctx := context.New()
 
 // Регистрируем Logger как Singleton (один экземпляр на приложение)
-context.RegisterSingleton[Logger](ctx, func(c *context.Context) (interface{}, error) {
+context.RegisterSingleton[Logger](ctx, func(c *context.Context) (any, error) {
     return &SimpleLogger{name: "app"}, nil
 })
 
@@ -36,7 +36,7 @@ if err != nil {
 
 ```go
 // Регистрируем Logger как Transient (новый экземпляр каждый раз)
-context.RegisterTransient[Logger](ctx, func(c *context.Context) (interface{}, error) {
+context.RegisterTransient[Logger](ctx, func(c *context.Context) (any, error) {
     return &SimpleLogger{name: "app"}, nil
 })
 
@@ -61,20 +61,20 @@ resolved, _ := context.Resolve[Logger](ctx)
 
 ```go
 // Регистрируем Logger
-context.RegisterSingleton[Logger](ctx, func(c *context.Context) (interface{}, error) {
+context.RegisterSingleton[Logger](ctx, func(c *context.Context) (any, error) {
     return &SimpleLogger{}, nil
 })
 
 // Регистрируем Database
-context.RegisterSingleton[Database](ctx, func(c *context.Context) (interface{}, error) {
+context.RegisterSingleton[Database](ctx, func(c *context.Context) (any, error) {
     return &MockDatabase{}, nil
 })
 
 // Регистрируем Service с зависимостями
-context.RegisterSingleton[*Service](ctx, func(c *context.Context) (interface{}, error) {
+context.RegisterSingleton[*Service](ctx, func(c *context.Context) (any, error) {
     logger, _ := context.Resolve[Logger](c)
     db, _ := context.Resolve[Database](c)
-    
+
     return &Service{
         logger: logger,
         db:     db,
@@ -108,7 +108,7 @@ context.Register[Logger](ctx, constructor, context.Singleton)
 Сокращение для `Register` с `Singleton` lifetime.
 
 ```go
-context.RegisterSingleton[Logger](ctx, func(c *context.Context) (interface{}, error) {
+context.RegisterSingleton[Logger](ctx, func(c *context.Context) (any, error) {
     return &SimpleLogger{}, nil
 })
 ```
@@ -118,7 +118,7 @@ context.RegisterSingleton[Logger](ctx, func(c *context.Context) (interface{}, er
 Сокращение для `Register` с `Transient` lifetime.
 
 ```go
-context.RegisterTransient[Logger](ctx, func(c *context.Context) (interface{}, error) {
+context.RegisterTransient[Logger](ctx, func(c *context.Context) (any, error) {
     return &SimpleLogger{}, nil
 })
 ```
@@ -216,15 +216,15 @@ func main() {
     ctx := context.New()
 
     // Регистрируем зависимости
-    context.RegisterSingleton[Logger](ctx, func(c *context.Context) (interface{}, error) {
+    context.RegisterSingleton[Logger](ctx, func(c *context.Context) (any, error) {
         return &ConsoleLogger{}, nil
     })
 
-    context.RegisterSingleton[Database](ctx, func(c *context.Context) (interface{}, error) {
+    context.RegisterSingleton[Database](ctx, func(c *context.Context) (any, error) {
         return &MockDB{}, nil
     })
 
-    context.RegisterSingleton[*UserService](ctx, func(c *context.Context) (interface{}, error) {
+    context.RegisterSingleton[*UserService](ctx, func(c *context.Context) (any, error) {
         logger, _ := context.Resolve[Logger](c)
         db, _ := context.Resolve[Database](c)
         return &UserService{logger: logger, db: db}, nil
@@ -285,7 +285,7 @@ if err := ctx.Err(); err != nil {
 }
 ```
 
-#### `Value(key interface{}) interface{}`
+#### `Value(key any) any`
 
 Получает значение, связанное с ключом.
 
@@ -350,7 +350,7 @@ newCtx, cancel := ctx.WithTimeout(5 * time.Second)
 defer cancel()
 ```
 
-#### `WithValue(key interface{}, value interface{}) *Context`
+#### `WithValue(key any, value any) *Context`
 
 Создает новый контекст с добавленным значением.
 
@@ -362,7 +362,7 @@ user := newCtx.Value("user")
 
 ### Вспомогательные методы
 
-#### `SetValue(key interface{}, value interface{})`
+#### `SetValue(key any, value any)`
 
 Устанавливает значение в текущем контексте.
 
@@ -405,17 +405,17 @@ func (l *ConsoleLogger) Log(msg string) {
 func main() {
     // Создаем контекст
     ctx := context.New()
-    
+
     // Устанавливаем значение контекста
     ctx.SetValue("appName", "MyApp")
-    
+
     // Регистрируем Logger
-    context.RegisterSingleton[Logger](ctx, func(c *context.Context) (interface{}, error) {
+    context.RegisterSingleton[Logger](ctx, func(c *context.Context) (any, error) {
         appName := c.Value("appName").(string)
         fmt.Printf("Creating logger for %s\n", appName)
         return &ConsoleLogger{}, nil
     })
-    
+
     // Разрешаем Logger
     logger, _ := context.Resolve[Logger](ctx)
     logger.Log("Hello, World!")
