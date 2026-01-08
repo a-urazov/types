@@ -1,4 +1,4 @@
-# List
+# Список
 
 Пакет `list` предоставляет универсальную реализацию списка с поддержкой добавления, вставки и удаления элементов. Список потокобезопасен благодаря встроенному мутексу.
 
@@ -26,15 +26,15 @@ import (
 
 func main() {
     l := list.New[string]()
-    
+
     l.Add("first")
     l.Add("second")
     l.Add("third")
-    
+
     if item, ok := l.Get(0); ok {
         fmt.Println("First item:", item)
     }
-    
+
     l.Insert(1, "inserted")
     fmt.Println("Size:", l.Size())
 }

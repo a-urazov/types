@@ -1,4 +1,4 @@
-# Queue
+# Очередь
 
 Пакет `queue` предоставляет реализацию очереди FIFO (First In First Out). Это базовая структура данных, где элементы добавляются с конца и удаляются с начала, следуя принципу "первым пришел, первым ушел".
 
@@ -24,15 +24,15 @@ import (
 
 func main() {
     q := queue.New[string]()
-    
+
     q.Enqueue("first")
     q.Enqueue("second")
     q.Enqueue("third")
-    
+
     if item, ok := q.Dequeue(); ok {
         fmt.Println("Dequeued:", item)
     }
-    
+
     fmt.Println("Size:", q.Size())
 }
 ```

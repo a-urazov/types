@@ -1,4 +1,4 @@
-# Sort
+# Сортировка
 
 Пакет `sort` предоставляет эффективные и оптимизированные алгоритмы сортировки для срезов (slices) элементов любого типа. Реализация использует гибридный подход с параллельной сортировкой для больших наборов данных.
 
@@ -23,20 +23,20 @@ func main() {
         return a < b
     })
     fmt.Println("Sorted numbers:", numbers) // [1 2 5 8 9]
-    
+
     // Сортировка строк по длине
     words := []string{"zebra", "apple", "go", "database"}
     sort.Slice(words, func(a, b string) bool {
         return len(a) < len(b)
     })
     fmt.Println("Sorted by length:", words) // [go apple zebra database]
-    
+
     // Сортировка пользовательских типов
     type Person struct {
         Name string
         Age  int
     }
-    
+
     people := []Person{
         {"Alice", 30},
         {"Bob", 25},
@@ -65,11 +65,11 @@ func main() {
 
 ## Производительность
 
-| Случай | Временная сложность |
-|--------|---|
-| Среднее | O(n log n) |
-| Лучшее | O(n log n) |
-| Худшее | O(n²) (редко) |
+| Случай  | Временная сложность |
+| ------- | ------------------- |
+| Среднее | O(n log n)          |
+| Лучшее  | O(n log n)          |
+| Худшее  | O(n²) (редко)       |
 
 ## Применение
 

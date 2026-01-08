@@ -1,6 +1,6 @@
-# Option Type
+# Тип Option
 
-The `Option` type represents a value that may or may not be present. It's a functional alternative to nullable types, helping to avoid null pointer exceptions by making the absence of a value explicit.
+Тип `Option` представляет значение, которое может присутствовать или отсутствовать. Это функциональная альтернатива nullable типам, помогающая избежать исключений указателя на ноль, делая отсутствие значения явным.
 
 ## Features
 

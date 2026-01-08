@@ -1,4 +1,4 @@
-# LRUCache
+# Кэш LRU
 
 Пакет `lrucache` предоставляет реализацию кэша с политикой LRU (Least Recently Used) - структуры данных для хранения ограниченного количества элементов с автоматическим удалением наименее недавно использованных при превышении емкости.
 
@@ -44,32 +44,32 @@ import (
 func main() {
     // Создаем LRU кэш с емкостью 3
     cache := lrucache.New[string, int](3)
-    
+
     // Добавляем элементы
     cache.Put("apple", 1)
-    cache.Put("banana", 2) 
+    cache.Put("banana", 2)
     cache.Put("cherry", 3)
-    
+
     // Получаем элемент (становится наиболее недавно использованным)
     if val, ok := cache.Get("apple"); ok {
         fmt.Printf("Got apple: %d\n", val) // Got apple: 1
     }
-    
+
     // Добавляем новый элемент - вытесняется наименее недавно использованный ("banana")
     cache.Put("date", 4)
-    
+
     // Проверяем содержимое
     fmt.Println("Contains banana:", cache.Contains("banana")) // false
     fmt.Println("Contains cherry:", cache.Contains("cherry")) // true
     fmt.Println("Cache size:", cache.Size())                  // 3
-    
+
     // Итерируем по элементам в порядке LRU (наименее недавно использованные первыми)
     fmt.Print("LRU order: ")
     cache.ForEach(func(key string, value int) {
         fmt.Printf("%s:%d ", key, value)
     })
     // Вывод: LRU order: cherry:3 date:4 apple:1
-    
+
     // Получаем ключи
     keys := cache.Keys()
     fmt.Printf("\nKeys: %v\n", keys) // Keys: [cherry date apple]
@@ -96,7 +96,7 @@ LRUCache использует комбинацию двусвязного спи
 
 - **Память**: O(n) где n - количество элементов в кэше
 - **Get**: O(1)
-- **Put**: O(1)  
+- **Put**: O(1)
 - **Remove**: O(1)
 - **Peek**: O(1)
 - **Итерация**: O(n)

@@ -1,4 +1,4 @@
-# BloomFilter
+# Фильтр Блума
 
 Пакет `bloomfilter` предоставляет реализацию фильтра Блума (Bloom Filter) - вероятностной структуры данных для проверки принадлежности элемента множеству. Bloom Filter может возвращать ложноположительные результаты (элемент может быть в множестве), но никогда не возвращает ложноотрицательные (если элемент точно отсутствует).
 
@@ -38,30 +38,30 @@ import (
 func main() {
     // Создаем BloomFilter для 1000 элементов с 1% вероятностью ложных срабатываний
     bf := bloomfilter.New(1000, 0.01)
-    
+
     // Добавляем элементы
     bf.Add([]byte("apple"))
     bf.Add([]byte("banana"))
     bf.Add([]byte("cherry"))
-    
+
     // Проверяем наличие элементов
     fmt.Println("Contains 'apple':", bf.MightContain([]byte("apple")))     // true
     fmt.Println("Contains 'grape':", bf.MightContain([]byte("grape")))     // false или true (ложное срабатывание)
-    
+
     // Получаем статистику
     fmt.Printf("Approximate size: %d\n", bf.Size())
     fmt.Printf("False positive rate: %.2f%%\n", bf.FalsePositiveRate()*100)
-    
+
     // Объединение фильтров
     bf2 := bloomfilter.New(1000, 0.01)
     bf2.Add([]byte("date"))
     bf2.Add([]byte("elderberry"))
-    
+
     err := bf.Merge(bf2)
     if err != nil {
         fmt.Printf("Error merging filters: %v\n", err)
     }
-    
+
     // Теперь bf содержит все элементы из обоих фильтров
     fmt.Println("After merge - contains 'date':", bf.MightContain([]byte("date")))
 }

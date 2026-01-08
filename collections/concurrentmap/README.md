@@ -1,4 +1,4 @@
-# ConcurrentMap
+# Потокобезопасная мапа
 
 Пакет `concurrentmap` предоставляет реализацию потокобезопасной хеш-таблицы (мапа) с оптимизированной производительностью через разделение блокировок (sharding). Это позволяет нескольким горутинам одновременно читать и писать в разные сегменты мапы, что значительно повышает производительность при высокой нагрузке.
 
@@ -44,42 +44,42 @@ import (
 func main() {
     // Создаем новую потокобезопасную мапу
     cm := concurrentmap.New[string, int]()
-    
+
     // Добавляем элементы
     cm.Set("apple", 5)
     cm.Set("banana", 3)
     cm.Set("cherry", 8)
-    
+
     // Получаем значения
     if value, ok := cm.Get("apple"); ok {
         fmt.Printf("Apple count: %d\n", value) // Apple count: 5
     }
-    
+
     // Проверяем наличие ключа
     if cm.Contains("banana") {
         fmt.Println("Banana exists in map")
     }
-    
+
     // Обновляем значение
     cm.Update("apple", func(v int) int {
         return v + 2 // увеличиваем на 2
     })
-    
+
     // Итерируем по элементам
     cm.ForEach(func(key string, value int) {
         fmt.Printf("%s: %d\n", key, value)
     })
-    
+
     // Удаляем элемент
     if cm.Delete("cherry") {
         fmt.Println("Cherry removed")
     }
-    
+
     // Попробовать установить значение, только если ключ не существует
     if cm.TrySet("date", 1) {
         fmt.Println("Date added")
     }
-    
+
     fmt.Printf("Total items: %d\n", cm.Len())
 }
 ```

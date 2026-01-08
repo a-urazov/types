@@ -10,7 +10,7 @@ type Number interface {
 	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | float32 | float64 | big.Int | big.Float | string
 }
 
-// Type represents the type of big number
+// Type представляет тип большого числа
 type Type uint8
 
 const (
@@ -18,11 +18,11 @@ const (
 	Decimal
 )
 
-// Big represents a big number that can be either an integer or decimal
+// Big представляет большое число, которое может быть целым или десятичным
 type Big struct {
 	typ Type
-	int *big.Int   // Used when typ is Integer
-	dec *big.Float // Used when typ is Decimal
+	int *big.Int   // Используется, когда тип - Integer
+	dec *big.Float // Используется, когда тип - Decimal
 }
 
 // New[T Number] создает новый объект Big на основе переданного значения
@@ -108,7 +108,7 @@ func toFloat64[T Number](value T) float64 {
 	}
 }
 
-// newInteger creates a new big integer
+// newInteger создает новое большое целое число
 func newInteger(value int64) *Big {
 	return &Big{
 		typ: Integer,
@@ -116,7 +116,7 @@ func newInteger(value int64) *Big {
 	}
 }
 
-// newIntegerFromBigInt creates a new big integer from a *big.Int
+// newIntegerFromBigInt создает новое большое целое число из *big.Int
 func newIntegerFromBigInt(value *big.Int) *Big {
 	return &Big{
 		typ: Integer,
@@ -124,7 +124,7 @@ func newIntegerFromBigInt(value *big.Int) *Big {
 	}
 }
 
-// newDecimal creates a new big decimal from a float64
+// newDecimal создает новое большое десятичное число из float64
 func newDecimal(value float64) *Big {
 	return &Big{
 		typ: Decimal,
@@ -132,7 +132,7 @@ func newDecimal(value float64) *Big {
 	}
 }
 
-// newDecimalFromBigFloat creates a new big decimal from a *big.Float
+// newDecimalFromBigFloat создает новое большое десятичное число из *big.Float
 func newDecimalFromBigFloat(value *big.Float) *Big {
 	return &Big{
 		typ: Decimal,
@@ -140,7 +140,7 @@ func newDecimalFromBigFloat(value *big.Float) *Big {
 	}
 }
 
-// newDecimalFromString creates a new big decimal from a string
+// newDecimalFromString создает новое большое десятичное число из строки
 func newDecimalFromString(s string) (*Big, error) {
 	f := new(big.Float)
 	_, ok := f.SetString(s)
@@ -153,7 +153,7 @@ func newDecimalFromString(s string) (*Big, error) {
 	}, nil
 }
 
-// Add adds two big numbers
+// Add складывает два больших числа
 func (b *Big) Add(other *Big) *Big {
 	// Convert to decimal for calculation to maintain consistent return type
 	bDec := b.ToDecimal()
@@ -162,7 +162,7 @@ func (b *Big) Add(other *Big) *Big {
 	return newDecimalFromBigFloat(result)
 }
 
-// Subtract subtracts the other big number from this one
+// Subtract вычитает одно большое число из другого
 func (b *Big) Subtract(other *Big) *Big {
 	// Convert to decimal for calculation to maintain consistent return type
 	bDec := b.ToDecimal()
@@ -171,7 +171,7 @@ func (b *Big) Subtract(other *Big) *Big {
 	return newDecimalFromBigFloat(result)
 }
 
-// Multiply multiplies two big numbers
+// Multiply перемножает два больших числа
 func (b *Big) Multiply(other *Big) *Big {
 	// Convert to decimal for calculation to maintain consistent return type
 	bDec := b.ToDecimal()
@@ -180,7 +180,7 @@ func (b *Big) Multiply(other *Big) *Big {
 	return newDecimalFromBigFloat(result)
 }
 
-// Divide divides this big number by the other
+// Divide делит одно большое число на другое
 func (b *Big) Divide(other *Big) *Big {
 	if other.IsZero() {
 		panic("division by zero")

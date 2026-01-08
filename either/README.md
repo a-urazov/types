@@ -1,6 +1,6 @@
-# Either Type
+# Тип Either
 
-The `Either` type represents a value of one of two possible types - `Left` or `Right`. This is commonly used in functional programming to represent computations that can result in either a success value (`Right`) or an error/failure value (`Left`).
+Тип `Either` представляет значение одного из двух возможных типов - `Left` или `Right`. Это часто используется в функциональном программировании для представления вычислений, которые могут привести либо к значению успеха (`Right`), либо к значению ошибки/сбоя (`Left`).
 
 ## Features
 

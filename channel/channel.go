@@ -157,23 +157,22 @@ func (c *Channel[T]) Select(ctx context.Context, cases ...*Case[T]) (int, T, err
 	if selectedCase.Send {
 		// For send operations, we return the value that was sent
 		return caseIndex, selectedCase.Value, nil
-	} else {
-		// For receive operations, we need to convert the received value
-		if !recvOK {
-			// Channel was closed
-			var zero T
-			return caseIndex, zero, ErrClosedChannel
-		}
-
-		// Convert the received value back to type T
-		receivedValue, ok := value.Interface().(T)
-		if !ok {
-			var zero T
-			return caseIndex, zero, &errorString{"type assertion failed"}
-		}
-
-		return caseIndex, receivedValue, nil
 	}
+	// For receive operations, we need to convert the received value
+	if !recvOK {
+		// Channel was closed
+		var zero T
+		return caseIndex, zero, ErrClosedChannel
+	}
+
+	// Convert the received value back to type T
+	receivedValue, ok := value.Interface().(T)
+	if !ok {
+		var zero T
+		return caseIndex, zero, &errorString{"type assertion failed"}
+	}
+
+	return caseIndex, receivedValue, nil
 }
 
 // Case представляет собой случай в операторе выбора.

@@ -1,4 +1,4 @@
-# MultiMap
+# Мультимап
 
 Пакет `multimap` предоставляет реализацию мультикарты (MultiMap) - структуры данных, в которой один ключ может быть сопоставлен с несколькими значениями. Это расширение обычной карты, позволяющее хранить несколько значений для одного ключа.
 
@@ -56,18 +56,18 @@ import (
 func main() {
     // Создаем новую мультикарту
     mm := multimap.New[string, string]()
-    
+
     // Добавляем значения
     mm.Put("fruits", "apple")
     mm.Put("fruits", "banana")
     mm.Put("fruits", "cherry")
     mm.Put("vegetables", "carrot")
     mm.Put("vegetables", "broccoli")
-    
+
     // Получаем все значения для ключа
     fruits := mm.Get("fruits")
     fmt.Printf("Fruits: %v\n", fruits) // Fruits: [apple banana cherry]
-    
+
     // Получаем первое и последнее значение
     if first, ok := mm.GetFirst("fruits"); ok {
         fmt.Printf("First fruit: %s\n", first) // First fruit: apple
@@ -75,28 +75,28 @@ func main() {
     if last, ok := mm.GetLast("fruits"); ok {
         fmt.Printf("Last fruit: %s\n", last) // Last fruit: cherry
     }
-    
+
     // Проверяем наличие
     fmt.Printf("Contains 'apple': %t\n", mm.ContainsValue("apple")) // true
     fmt.Printf("Key 'fruits' exists: %t\n", mm.ContainsKey("fruits")) // true
-    
+
     // Удаляем конкретное значение
     if mm.Remove("fruits", "banana") {
         fmt.Println("Removed banana from fruits")
     }
-    
+
     // Итерируем по всем парам
     fmt.Println("All items:")
     mm.ForEach(func(key string, value string) {
         fmt.Printf("  %s: %s\n", key, value)
     })
-    
+
     // Итерируем по значениям конкретного ключа
     fmt.Println("Vegetables:")
     mm.ForEachKey("vegetables", func(value string) {
         fmt.Printf("  %s\n", value)
     })
-    
+
     fmt.Printf("Total items: %d\n", mm.Size()) // Total items: 4
     fmt.Printf("Number of keys: %d\n", mm.KeySize()) // Number of keys: 2
 }

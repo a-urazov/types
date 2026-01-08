@@ -5,18 +5,18 @@ import (
 	"math"
 )
 
-// Complex represents a complex number with real and imaginary parts
+// Complex представляет комплексное число с вещественной и мнимой частями
 type Complex struct {
 	Real float64
 	Imag float64
 }
 
-// New creates a new complex number with the given real and imaginary parts
-func New(real, imag float64) Complex {
-	return Complex{Real: real, Imag: imag}
+// New создает новое комплексное число с заданными вещественной и мнимой частями
+func New(realPart, imagPart float64) Complex {
+	return Complex{Real: realPart, Imag: imagPart}
 }
 
-// Add adds two complex numbers
+// Add складывает два комплексных числа
 func (c Complex) Add(other Complex) Complex {
 	return Complex{
 		Real: c.Real + other.Real,
@@ -24,7 +24,7 @@ func (c Complex) Add(other Complex) Complex {
 	}
 }
 
-// Subtract subtracts the other complex number from this one
+// Subtract вычитает одно комплексное число из другого
 func (c Complex) Subtract(other Complex) Complex {
 	return Complex{
 		Real: c.Real - other.Real,
@@ -32,7 +32,7 @@ func (c Complex) Subtract(other Complex) Complex {
 	}
 }
 
-// Multiply multiplies two complex numbers
+// Multiply перемножает два комплексных числа
 func (c Complex) Multiply(other Complex) Complex {
 	return Complex{
 		Real: c.Real*other.Real - c.Imag*other.Imag,
@@ -40,7 +40,7 @@ func (c Complex) Multiply(other Complex) Complex {
 	}
 }
 
-// Divide divides this complex number by the other
+// Divide делит одно комплексное число на другое
 func (c Complex) Divide(other Complex) Complex {
 	denominator := other.Real*other.Real + other.Imag*other.Imag
 	if denominator == 0 {
@@ -53,12 +53,12 @@ func (c Complex) Divide(other Complex) Complex {
 	}
 }
 
-// Magnitude returns the magnitude (or modulus) of the complex number
+// Magnitude возвращает модуль комплексного числа
 func (c Complex) Magnitude() float64 {
 	return math.Sqrt(c.Real*c.Real + c.Imag*c.Imag)
 }
 
-// Conjugate returns the complex conjugate
+// Conjugate возвращает комплексно-сопряженное число
 func (c Complex) Conjugate() Complex {
 	return Complex{
 		Real: c.Real,
@@ -66,7 +66,7 @@ func (c Complex) Conjugate() Complex {
 	}
 }
 
-// String returns a string representation of the complex number
+// String возвращает строковое представление комплексного числа
 func (c Complex) String() string {
 	if c.Imag >= 0 {
 		return fmt.Sprintf("%.6f+%.6fi", c.Real, c.Imag)
@@ -74,19 +74,19 @@ func (c Complex) String() string {
 	return fmt.Sprintf("%.6f%.6fi", c.Real, c.Imag)
 }
 
-// Equals checks if two complex numbers are equal within a tolerance
+// Equals проверяет равенство двух комплексных чисел с учетом погрешности
 func (c Complex) Equals(other Complex, tolerance float64) bool {
 	return math.Abs(c.Real-other.Real) < tolerance && math.Abs(c.Imag-other.Imag) < tolerance
 }
 
-// Polar returns the polar form (magnitude and angle) of the complex number
+// Polar возвращает полярную форму (модуль и угол) комплексного числа
 func (c Complex) Polar() (r, theta float64) {
 	r = c.Magnitude()
 	theta = math.Atan2(c.Imag, c.Real)
 	return r, theta
 }
 
-// FromPolar creates a complex number from polar coordinates
+// FromPolar создает комплексное число из полярных координат
 func FromPolar(r, theta float64) Complex {
 	return Complex{
 		Real: r * math.Cos(theta),
@@ -94,7 +94,7 @@ func FromPolar(r, theta float64) Complex {
 	}
 }
 
-// Power raises the complex number to the given power
+// Power возводит комплексное число в заданную степень
 func (c Complex) Power(n int) Complex {
 	if n == 0 {
 		return New(1, 0)
@@ -110,7 +110,7 @@ func (c Complex) Power(n int) Complex {
 	return result
 }
 
-// Sqrt returns the square root of the complex number
+// Sqrt возвращает квадратный корень комплексного числа
 func (c Complex) Sqrt() Complex {
 	r, theta := c.Polar()
 	return FromPolar(math.Sqrt(r), theta/2)

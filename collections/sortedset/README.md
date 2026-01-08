@@ -1,4 +1,4 @@
-# SortedSet
+# Отсортированное множество
 
 Пакет `sortedset` предоставляет реализацию отсортированного множества (Sorted Set) - структуры данных, которая хранит уникальные элементы в отсортированном порядке. SortedSet основан на красно-черном дереве, что обеспечивает гарантированную O(log n) сложность для операций вставки, удаления и поиска.
 
@@ -39,21 +39,21 @@ import (
 func main() {
     // Создаем отсортированное множество для целых чисел
     set := sortedset.New(func(a, b int) bool { return a < b })
-    
+
     // Добавляем элементы (в любом порядке)
     set.Add(5)
     set.Add(1)
     set.Add(3)
     set.Add(7)
     set.Add(3) // Дубликат, не будет добавлен
-    
+
     // Итерируем по элементам в отсортированном порядке
     fmt.Print("Elements: ")
     set.ForEach(func(item int) {
         fmt.Printf("%d ", item)
     })
-    // Вывод: Elements: 1 3 5 7 
-    
+    // Вывод: Elements: 1 3 5 7
+
     // Получаем первый и последний элементы
     if first, ok := set.First(); ok {
         fmt.Printf("\nFirst: %d", first) // First: 1
@@ -61,7 +61,7 @@ func main() {
     if last, ok := set.Last(); ok {
         fmt.Printf("\nLast: %d", last) // Last: 7
     }
-    
+
     // Используем Ceiling и Floor
     if ceil, ok := set.Ceiling(4); ok {
         fmt.Printf("\nCeiling(4): %d", ceil) // Ceiling(4): 5
@@ -69,7 +69,7 @@ func main() {
     if floor, ok := set.Floor(4); ok {
         fmt.Printf("\nFloor(4): %d", floor) // Floor(4): 3
     }
-    
+
     fmt.Printf("\nSize: %d", set.Size()) // Size: 4
 }
 ```
@@ -85,7 +85,7 @@ func main() {
 ## Производительность
 
 - **Вставка (Add)**: O(log n)
-- **Удаление (Remove)**: O(log n)  
+- **Удаление (Remove)**: O(log n)
 - **Поиск (Contains)**: O(log n)
 - **Итерация (ForEach)**: O(n)
 - **Ceiling/Floor**: O(log n)

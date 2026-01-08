@@ -1,4 +1,4 @@
-# Set
+# Множество
 
 Пакет `set` предоставляет реализацию набора уникальных элементов. Множество (Set) - это коллекция, которая содержит только уникальные элементы без дублирования.
 
@@ -28,23 +28,23 @@ import (
 
 func main() {
     s := set.New[int]()
-    
+
     s.Add(1)
     s.Add(2)
     s.Add(3)
     s.Add(2) // Не добавляется, так как уже существует
-    
+
     if s.Contains(2) {
         fmt.Println("2 is in the set")
     }
-    
+
     fmt.Println("Size:", s.Size())
-    
+
     s2 := set.New[int]()
     s2.Add(2)
     s2.Add(3)
     s2.Add(4)
-    
+
     union := s.Union(s2)
     fmt.Println("Union size:", union.Size())
 }

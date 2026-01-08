@@ -8,7 +8,7 @@ set -euo pipefail
 if ! command -v golangci-lint &> /dev/null; then
     echo "golangci-lint could not be found. Installing..."
     # Install golangci-lint
-    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.60.3
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.6.2
 fi
 
 echo "Running golangci-lint..."

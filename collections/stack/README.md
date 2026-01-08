@@ -1,4 +1,4 @@
-# Stack
+# Стек
 
 Пакет `stack` предоставляет реализацию стека LIFO (Last In First Out). В стеке элементы добавляются и удаляются с одного конца (вершины), что означает, что последний добавленный элемент будет первым удален.
 
@@ -24,11 +24,11 @@ import (
 
 func main() {
     s := stack.New[string]()
-    
+
     s.Push("first")
     s.Push("second")
     s.Push("third")
-    
+
     for !s.IsEmpty() {
         if item, ok := s.Pop(); ok {
             fmt.Println("Popped:", item)

@@ -1,4 +1,4 @@
-# Dictionary
+# Словарь
 
 Пакет `dictionary` предоставляет реализацию словаря (ассоциативного массива или отображения). Словарь хранит пары ключ-значение и позволяет быстро найти значение по его ключу.
 
@@ -28,19 +28,19 @@ import (
 
 func main() {
     dict := dictionary.New[string, int]()
-    
+
     dict.Set("one", 1)
     dict.Set("two", 2)
     dict.Set("three", 3)
-    
+
     if val, ok := dict.Get("two"); ok {
         fmt.Println("Value for 'two':", val)
     }
-    
+
     dict.ForEach(func(key string, val int) {
         fmt.Printf("%s: %d\n", key, val)
     })
-    
+
     fmt.Println("Size:", dict.Size())
 }
 ```

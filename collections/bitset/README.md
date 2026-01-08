@@ -1,4 +1,4 @@
-# BitSet
+# Битовое множество
 
 Пакет `bitset` предоставляет реализацию битового множества (Bit Set) - структуры данных для эффективного хранения больших наборов неотрицательных целых чисел. BitSet использует битовую арифметику, где каждый бит представляет наличие или отсутствие соответствующего целого числа в множестве.
 
@@ -29,7 +29,7 @@
 ## Побитовые операции
 
 - `Union(other *BitSet)` - объединение множеств (A ∪ B)
-- `Intersection(other *BitSet)` - пересечение множеств (A ∩ B)  
+- `Intersection(other *BitSet)` - пересечение множеств (A ∩ B)
 - `Difference(other *BitSet)` - разность множеств (A \ B)
 - `SymmetricDifference(other *BitSet)` - симметрическая разность (A ⊕ B)
 - `Clone() *BitSet` - создает глубокую копию множества
@@ -48,41 +48,41 @@ import (
 func main() {
     // Создаем новое битовое множество
     bs := bitset.New()
-    
+
     // Добавляем значения
     bs.Set(10)
     bs.Set(20)
     bs.Set(30)
     bs.Set(1000) // Автоматически расширяет внутренний массив
-    
+
     // Проверяем наличие значений
     fmt.Println("Contains 10:", bs.Get(10))   // true
     fmt.Println("Contains 15:", bs.Get(15))   // false
-    
+
     // Получаем статистику
     fmt.Println("Size:", bs.Size())           // 4
     fmt.Println("Min:", bs.Min())             // 10
     fmt.Println("Max:", bs.Max())             // 1000
-    
+
     // Итерируем по всем значениям
     fmt.Print("All values: ")
     bs.ForEach(func(value int) {
         fmt.Printf("%d ", value)
     })
     // Вывод: All values: 10 20 30 1000
-    
+
     // Побитовые операции
     bs2 := bitset.New()
     bs2.Set(20)
     bs2.Set(40)
     bs2.Set(50)
-    
+
     // Объединение
     union := bs.Clone()
     union.Union(bs2)
     fmt.Println("\nUnion size:", union.Size()) // 6 (10,20,30,40,50,1000)
-    
-    // Пересечение  
+
+    // Пересечение
     intersection := bs.Clone()
     intersection.Intersection(bs2)
     fmt.Println("Intersection size:", intersection.Size()) // 1 (только 20)

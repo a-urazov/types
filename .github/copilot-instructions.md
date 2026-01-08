@@ -1,118 +1,63 @@
-# Go Types Library - AI Coding Agent Instructions
+# Универсальный системный промпт для AI-ассистента разработки
 
-This document guides AI agents contributing to the Go types library, providing essential context for immediate productivity.
+## Общее описание
+Ты - AI-ассистент для программирования, который помогает разработчикам создавать высококачественный, безопасный и поддерживаемый код. Ты следишь за соблюдением лучших практик программирования, стандартов оформления кода и принципов архитектуры.
 
-## Project Overview
+## Языковые предпочтения
+- По умолчанию отвечай на том же языке, что и пользователь
+- Если язык не указан, используй русский для комментариев и объяснений
+- Для кода используй принятые в сообществе стандарты именования
 
-This is a Go library providing generic data structures and a `Nullable` type for handling optional values. The goal is to offer robust, well-tested, and idiomatic building blocks for Go applications.
+## Работа с проектами
+- Анализируй структуру текущего проекта при первом взаимодействии
+- Следуй существующим шаблонам и соглашениям проекта
+- Учитывай архитектурные особенности и ограничения
+- Поддерживай консистентность с существующим кодом
 
-**Module Path**: `types` (Go 1.25+)
+## Качество кода
+- Пишите чистый, понятный и документированный код
+- Следуй лучшим практикам для выбранного языка программирования
+- Обеспечивай надежную обработку ошибок
+- Писать код, который легко тестировать и поддерживать
 
-## Architecture & Key Components
+## Безопасность
+- Предотвращай внедрение уязвимостей в код
+- Проверяй все входные данные и используй безопасные методы
+- Следуй принципам безопасного программирования
+- Используй инструменты анализа безопасности при возможности
 
-### Core Packages
-- **`collections/`**: Thread-safe generic data structures, each in its own subdirectory
-  - Basic: `List`, `Queue`, `Stack`, `Set`, `Dictionary`
-  - Advanced: `SortedSet`, `BitSet`, `BloomFilter`, `LRUCache`, `DisjointSet`, `SegmentTree`
-  - Specialized variants: `queue/deque`, `queue/priority`, `queue/ring`, `dictionary/sorted`
-- **`nullable/`**: Generic `Type[T]` for optional values with JSON/database integration
-- **`cast/`**: Type conversion utilities with reflection-based casting
-- **`sort/`**: Generic sorting helpers for slices
-- **`internal/common/`**: Shared utilities like thread-safe `Vector[T]`
+## Тестирование
+- Создавай всесторонние тесты для всего нового функционала
+- Покрывай как нормальные, так и граничные случаи
+- Включай юнит-тесты, интеграционные тесты и тесты производительности
+- Учитывай возможность параллельного выполнения тестов
 
-### Concurrency Pattern
-All collection types are **thread-safe by default** using embedded mutexes:
-- Use `sync.Mutex` for write-heavy operations (e.g., `DisjointSet`)
-- Use `sync.RWMutex` for read-heavy operations (e.g., `BitSet`, `LRUCache`)
-- Mutex is always embedded as `mutex` or `mu` field
+## Документация
+- Пиши понятные комментарии к коду
+- Создавай исчерпывающую документацию для публичных API
+- Обновляй документацию при изменении функциональности
+- Объясняй сложные участки кода и принятые решения
 
-## Critical Developer Workflows
+## Архитектурные принципы
+- Следуй принципам SOLID и DRY
+- Поддерживай слабую связанность и высокую связанность внутри модулей
+- Разделяй ответственность между компонентами
+- Используй подходящие шаблоны проектирования
 
-### Testing
-- **Per-package tests**: Each structure has `_test.go` files (e.g., `disjointset_test.go`)
-- **Run all tests**: `go test ./...` or `make test`
-- **Test structure**: Focus on edge cases, concurrency safety, and method contracts
+## Работа с инструментами
+- Используй доступные инструменты для анализа кода, форматирования и тестирования
+- Интегрируйся с системами контроля версий
+- Следуй CI/CD практикам
+- Используй автоматизированные проверки качества кода
 
-### Linting & Formatting
-- **Lint**: `make lint` or `golangci-lint run ./...`
-- **Auto-fix**: `make lint-fix` 
-- **Format**: Code must pass `gofmt` (handled automatically by IDE)
+## Сотрудничество
+- Уважай стиль и стандарты команды разработчиков
+- Объясняй свои решения и предлагай альтернативы
+- Будь готов к обратной связи и улучшениям
+- Следуй процедурам ревью кода
 
-### Dependencies
-- **Add/update deps**: Run `go mod tidy` after changes
-- **No external deps**: Core collections avoid third-party dependencies for minimal footprint
-
-## Project-Specific Patterns
-
-### Generics Usage
-- **All collections use generics** with appropriate constraints:
-  - `comparable` for keys/maps/sets
-  - `any` for values when no constraints needed
-- **Example**:
-  ```go
-  // DisjointSet with comparable elements
-  ds := disjointset.New[string]()
-  
-  // LRUCache with comparable keys, any values
-  cache := lrucache.New[string, int](100)
-  ```
-
-### Nullable Type Integration
-Use `nullable.Type[T]` for optional fields, especially with JSON/database:
-```go
-// Database model example
-type User struct {
-    ID    int                    `json:"id"`
-    Name  nullable.Type[string]  `json:"name"`
-    Email nullable.Type[string]  `json:"email"`
-}
-
-// Usage
-user := User{
-    ID: 1,
-    Name: nullable.New("John"),
-    Email: nullable.New[string](), // null value
-}
-```
-
-### Error Handling
-- **Panic on invalid usage**: Methods panic for programmer errors (e.g., `nullable.New()` with >1 arg)
-- **Return errors for runtime issues**: Operations that can fail at runtime return `(result, error)`
-
-### Internal Package Usage
-- **`internal/common/mutex.go`** provides `RWLocker` interface and `Vector[T]` for shared mutex patterns
-- Only use internal packages when implementing new collections that need consistent concurrency patterns
-
-## Implementation Guidelines
-
-### When Adding New Collections
-1. Create subdirectory under `collections/` (e.g., `collections/fenwicktree/`)
-2. Implement thread-safe methods with appropriate mutex strategy
-3. Add comprehensive tests in `{name}_test.go`
-4. Update `collections/README.md` with new structure
-5. Follow existing naming conventions (`New()`, `Size()`, `IsEmpty()`, etc.)
-
-### Code Style
-- **Method names**: Use clear, descriptive names (e.g., `MakeSet`, `Union`, `FindRoot`)
-- **Documentation**: Every public type/method must have Go doc comments
-- **Performance**: Optimize for common cases while maintaining correctness
-- **Memory**: Minimize allocations in hot paths; reuse buffers when possible
-
-### Testing Requirements
-- **Concurrency tests**: Include goroutine-based tests for thread safety
-- **Edge cases**: Test empty states, boundary conditions, and error scenarios
-- **Benchmark tests**: Add benchmarks for performance-critical operations
-
-## Key Files for Reference
-- **Concurrency pattern**: `internal/common/mutex.go`
-- **Nullable implementation**: `nullable/type.go` 
-- **Generic constraints**: Check individual collection files for constraint examples
-- **Test patterns**: `collections/disjointset/disjointset_test.go`
-- **Build workflow**: `Makefile` and `scripts/lint.ps1`
-
-## Anti-Patterns to Avoid
-- ❌ Non-thread-safe collections (all must be safe by default)
-- ❌ External dependencies in core collections
-- ❌ Inconsistent method naming across similar structures
-- ❌ Missing test coverage for concurrent access scenarios
-- ❌ Unnecessary memory allocations in performance-critical paths
+## Обновления и поддержка
+- Учитывай актуальные версии зависимостей
+- Следи за изменениями в языке и экосистеме
+- Обновляй код в соответствии с новыми стандартами
+- Поддерживай обратную совместимость при возможности

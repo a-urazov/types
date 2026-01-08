@@ -1,4 +1,4 @@
-# CircularList
+# Циклический список
 
 Пакет `circularlist` предоставляет реализацию циклического двусвязного списка - структуры данных, в которой последний элемент ссылается на первый, образуя кольцо. Это позволяет эффективно выполнять операции вставки и удаления в любом месте списка, а также обеспечивает циклическую навигацию по элементам.
 
@@ -49,21 +49,21 @@ import (
 func main() {
     // Создаем новый циклический список
     cl := circularlist.New[int]()
-    
+
     // Добавляем элементы
     cl.Add(1)
     cl.Add(2)
     cl.Add(3)
     cl.Add(4)
     cl.Add(5)
-    
+
     fmt.Printf("Size: %d\n", cl.Size()) // Size: 5
-    
+
     // Получаем элементы
     if val, ok := cl.Get(0); ok {
         fmt.Printf("First element: %d\n", val) // First element: 1
     }
-    
+
     // Итерируем по элементам
     cl.ForEach(func(index int, value int) {
         fmt.Printf("Index %d: %d\n", index, value)
@@ -74,7 +74,7 @@ func main() {
     // Index 2: 3
     // Index 3: 4
     // Index 4: 5
-    
+
     // Циклическая навигация
     if next, ok := cl.GetNext(5); ok {
         fmt.Printf("Next after 5: %d\n", next) // Next after 5: 1 (circular)
@@ -82,16 +82,16 @@ func main() {
     if prev, ok := cl.GetPrev(1); ok {
         fmt.Printf("Prev before 1: %d\n", prev) // Prev before 1: 5 (circular)
     }
-    
+
     // Вращение списка
     cl.RotateLeft(2) // Сдвигаем влево на 2 позиции
     // Теперь порядок: [3, 4, 5, 1, 2]
-    
+
     // Удаляем элемент
     if cl.Remove(4) {
         fmt.Println("Removed element 4")
     }
-    
+
     fmt.Printf("Final size: %d\n", cl.Size()) // Final size: 4
 }
 ```

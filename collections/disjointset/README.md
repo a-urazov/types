@@ -1,4 +1,4 @@
-# DisjointSet
+# Система непересекающихся множеств
 
 Пакет `disjointset` предоставляет реализацию системы непересекающихся множеств (Disjoint Set), также известной как Union-Find или структура данных для поиска связных компонентов. Эта структура данных эффективно отслеживает набор элементов, разделенных на непересекающиеся подмножества, и поддерживает операции объединения множеств и поиска представителя множества.
 
@@ -38,33 +38,33 @@ import (
 func main() {
     // Создаем новую систему непересекающихся множеств
     ds := disjointset.New[string]()
-    
+
     // Добавляем элементы
     ds.MakeSet("apple")
-    ds.MakeSet("banana") 
+    ds.MakeSet("banana")
     ds.MakeSet("cherry")
     ds.MakeSet("date")
-    
+
     // Проверяем, что элементы в разных множествах
     fmt.Println("Apple and banana connected:", ds.Connected("apple", "banana")) // false
-    
+
     // Объединяем множества
     ds.Union("apple", "banana")
     ds.Union("cherry", "date")
-    
+
     // Проверяем соединения
     fmt.Println("Apple and banana connected:", ds.Connected("apple", "banana")) // true
     fmt.Println("Apple and cherry connected:", ds.Connected("apple", "cherry")) // false
-    
+
     // Находим представителей
     if root, ok := ds.Find("apple"); ok {
         fmt.Printf("Root of apple: %s\n", root)
     }
-    
+
     // Получаем информацию о множествах
     fmt.Printf("Total elements: %d\n", ds.Size())        // 4
     fmt.Printf("Number of sets: %d\n", ds.SetCount())    // 2
-    
+
     // Итерируем по всем множествам
     fmt.Println("All sets:")
     ds.ForEachSet(func(elements []string) {
@@ -99,7 +99,7 @@ func main() {
 - **Память**: O(n) где n - количество элементов
 - **MakeSet**: O(1)
 - **Find**: O(α(n)) амортизированное время
-- **Union**: O(α(n)) амортизированное время  
+- **Union**: O(α(n)) амортизированное время
 - **Connected**: O(α(n)) амортизированное время
 - **Sets/SetCount**: O(n) время (требует обхода всех элементов)
 

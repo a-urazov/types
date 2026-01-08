@@ -4,7 +4,7 @@
 if (!(Get-Command golangci-lint -ErrorAction SilentlyContinue)) {
     Write-Host "golangci-lint could not be found. Installing..."
     # Install golangci-lint using Go
-    go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.3
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@v2.6.2
 }
 
 Write-Host "Running golangci-lint..."
