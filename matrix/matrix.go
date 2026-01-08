@@ -1,19 +1,19 @@
 package matrix
 
 import (
-	"cmp"
 	"errors"
+	"reflect"
 )
 
 // Matrix представляет собой двумерную матрицу чисел
-type Matrix[T cmp.Ordered] struct {
+type Matrix[T any] struct {
 	rows int
 	cols int
 	data [][]T
 }
 
 // New создает новую матрицу с заданными размерами
-func New[T cmp.Ordered](rows, cols int) (*Matrix[T], error) {
+func New[T any](rows, cols int) (*Matrix[T], error) {
 	if rows <= 0 || cols <= 0 {
 		return nil, errors.New("размеры матрицы должны быть положительными")
 	}
@@ -32,7 +32,7 @@ func New[T cmp.Ordered](rows, cols int) (*Matrix[T], error) {
 }
 
 // NewWithValues создает новую матрицу с заданными начальными значениями
-func NewWithValues[T cmp.Ordered](values [][]T) (*Matrix[T], error) {
+func NewWithValues[T any](values [][]T) (*Matrix[T], error) {
 	if len(values) == 0 || len(values[0]) == 0 {
 		return nil, errors.New("значения не могут быть пустыми")
 	}
@@ -133,7 +133,7 @@ func (m *Matrix[T]) IsEqual(other *Matrix[T]) bool {
 
 	for i := 0; i < m.rows; i++ {
 		for j := 0; j < m.cols; j++ {
-			if m.data[i][j] != other.data[i][j] {
+			if !reflect.DeepEqual(m.data[i][j], other.data[i][j]) {
 				return false
 			}
 		}
@@ -151,36 +151,8 @@ func (m *Matrix[T]) ForEach(fn func(T, int, int)) {
 	}
 }
 
-// Add складывает две матрицы
-func (m *Matrix[T]) Add(other *Matrix[T]) (*Matrix[T], error) {
-	if m.rows != other.rows || m.cols != other.cols {
-		return nil, errors.New("размеры матриц должны совпадать для сложения")
-	}
-
-	result, _ := New[T](m.rows, m.cols)
-
-	var zero T
-	var temp T
-
-	// Проверяем, можно ли выполнять сложение (только для числовых типов)
-	// В реальной реализации можно использовать constraint для числовых типов
-	_ = zero
-	_ = temp
-
-	for i := 0; i < m.rows; i++ {
-		for j := 0; j < m.cols; j++ {
-			// Так как мы не можем быть уверены в типе T, мы не можем выполнить сложение напрямую
-			// Вместо этого, мы предоставим специализированные функции для числовых типов
-			// или предоставим метод, который принимает функцию для операции
-			result.data[i][j] = m.data[i][j] // заглушка
-		}
-	}
-
-	return result, nil
-}
-
 // AddFunc позволяет складывать матрицы, используя предоставленную функцию для операции
-func (m *Matrix[T]) AddFunc(other *Matrix[T], op func(T, T) T) (*Matrix[T], error) {
+func (m *Matrix[T]) Add(other *Matrix[T], op func(T, T) T) (*Matrix[T], error) {
 	if m.rows != other.rows || m.cols != other.cols {
 		return nil, errors.New("размеры матриц должны совпадать для сложения")
 	}
@@ -196,29 +168,8 @@ func (m *Matrix[T]) AddFunc(other *Matrix[T], op func(T, T) T) (*Matrix[T], erro
 	return result, nil
 }
 
-// Multiply умножает две матрицы
-func (m *Matrix[T]) Multiply(other *Matrix[T]) (*Matrix[T], error) {
-	if m.cols != other.rows {
-		return nil, errors.New("количество столбцов первой матрицы должно совпадать с количеством строк второй матрицы")
-	}
-
-	result, _ := New[T](m.rows, other.cols)
-
-	// Как и в случае с Add, мы не можем выполнить умножение напрямую без знания типа T
-	// Мы предоставим метод, который использует функцию для выполнения умножения и сложения
-
-	for i := 0; i < m.rows; i++ {
-		for j := 0; j < other.cols; j++ {
-			// Заглушка для умножения
-			result.data[i][j] = m.data[i][j] // заглушка
-		}
-	}
-
-	return result, nil
-}
-
 // MultiplyFunc позволяет умножать матрицы, используя предоставленные функции для умножения и сложения
-func (m *Matrix[T]) MultiplyFunc(other *Matrix[T], mulFunc func(T, T) T, addFunc func(T, T) T) (*Matrix[T], error) {
+func (m *Matrix[T]) Multiply(other *Matrix[T], mulFunc func(T, T) T, addFunc func(T, T) T) (*Matrix[T], error) {
 	if m.cols != other.rows {
 		return nil, errors.New("количество столбцов первой матрицы должно совпадать с количеством строк второй матрицы")
 	}
@@ -237,4 +188,24 @@ func (m *Matrix[T]) MultiplyFunc(other *Matrix[T], mulFunc func(T, T) T, addFunc
 	}
 
 	return result, nil
+}
+
+// Transpose возвращает транспонированную матрицу
+func (m *Matrix[T]) Transpose() *Matrix[T] {
+	result, _ := New[T](m.cols, m.rows)
+	for i := 0; i < m.rows; i++ {
+		for j := 0; j < m.cols; j++ {
+			result.data[j][i] = m.data[i][j]
+		}
+	}
+	return result
+}
+
+// Apply применяет функцию к каждому элементу, изменяя матрицу
+func (m *Matrix[T]) Apply(fn func(T, int, int) T) {
+	for i := 0; i < m.rows; i++ {
+		for j := 0; j < m.cols; j++ {
+			m.data[i][j] = fn(m.data[i][j], i, j)
+		}
+	}
 }
