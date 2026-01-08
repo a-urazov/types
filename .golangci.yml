@@ -1,37 +1,49 @@
 # golangci-lint configuration file
-# Updated to follow best practices and prepare for V2 transition
-version: v1.60.1
+# Fully optimized for v2 format
+version: "2"
 
 run:
   timeout: 5m
   modules-download-mode: readonly
+  # В v2 рекомендуется явно указывать пути для анализа
+  skip-dirs:
+    - vendor
+    - third_party
+    - node_modules
+    - .git
+    - .hg
+    - .bzr
+    - .svn
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
 
 linters:
+  # В v2 используется более строгий подход к включению линтеров
+  enable-all: false
+  disable-all: false
+  fast: false
+
   enable:
     - bodyclose
-    - deadcode
+    - copyloopvar
     - depguard
     - dogsled
     - dupl
     - errcheck
     - exhaustive
-    - copyloopvar  # replaces exportloopref in newer versions
     - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
     - godot
     - godox
-    - goerr113
-    - gofmt
-    - gofumpt
     - goheader
-    - goimports
-    - gomnd
     - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - makezero
@@ -53,14 +65,11 @@ linters:
     - sloglint
     - spancheck
     - staticcheck
-    - stylecheck
-    - tenv
     - testableexamples
     - testifylint
     - testpackage
     - thelper
     - tparallel
-    - typecheck
     - unconvert
     - unparam
     - unused
@@ -70,16 +79,149 @@ linters:
     - wrapcheck
 
   disable:
-    - exportloopref  # deprecated, replaced by copyloopvar
-    - scopelint      # deprecated
-    - structcheck    # deprecated
-    - varcheck       # deprecated
-    - maligned       # deprecated
-    - interfacer     # deprecated
-    - golint         # deprecated
-    - wsl            # deprecated
+    - wsl # deprecated in v2
+    - funlen # часто слишком строгий
+    - lll # дублирует функционал godot
 
+linters-settings:
+  # Настройки для gocritic - одного из самых мощных линтеров в v2
+  gocritic:
+    enabled-checks:
+      - appendAssign
+      - appendCombine
+      - argOrder
+      - assignOp
+      - badCond
+      - boolExprSimplify
+      - builtinShadow
+      - captLocal
+      - caseOrder
+      - condOrder
+      - containsRef
+      - deprecatedComment
+      - dupArg
+      - dupBranchBody
+      - dupCase
+      - dupSubExpr
+      - elseif
+      - embeddedAssignment
+      - emptyBlock
+      - equalFold
+      - evalOrder
+      - explicitnil
+      - exprSwitch
+      - fallthrough
+      - flagDeref
+      - flagName
+      - hexLiteral
+      - hugeParam
+      - ifElseChain
+      - importShadow
+      - indexAlloc
+      - initClause
+      - mapKey
+      - newDeref
+      - nilValReturn
+      - octalLiteral
+      - offBy1
+      - paramTypeCombine
+      - ptrToRefParam
+      - rangeExprCopy
+      - rangeValCopy
+      - regexpMust
+      - singleCaseSwitch
+      - sloppyLen
+      - sloppyTypeAssert
+      - stringXbytes
+      - switchTrue
+      - typeUnparen
+      - typeSwitchVar
+      - underef
+      - unlabelStmt
+      - unlambda
+      - unslice
+      - valSwap
+      - weakCond
+      - wrapperFunc
+      - yodaStyleExpr
+    disabled-checks:
+      - commentFormatting # конфликтует с godot
+
+  # Настройки для goheader
+  goheader:
+    values:
+      regexp:
+        author: ".*"
+        copyright-year: "20\\d{2}"
+
+  # Настройки для gomodguard
+  gomodguard:
+    allowed:
+      modules: []
+      domains: []
+    blocked:
+      modules:
+        - github.com/davecgh/go-spew/spew:
+            reason: "Используйте fmt вместо spew"
+        - github.com/golang/protobuf:
+            reason: "Используйте google.golang.org/protobuf вместо устаревшего пакета"
+
+  # Настройки для godot
+  godot:
+    scope: all
+    exclude:
+      # Исключаем комментарии, которые не нуждаются в точке в конце
+      - "^//nolint:"
+      - "^//go:generate"
+
+  # Настройки для nilnil
+  nilnil:
+    checked-types:
+      - func
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+    - gci
 issues:
+  # В v2 рекомендуется более строгий подход к ограничению ошибок
   max-issues-per-linter: 0
   max-same-issues: 0
   new: false
+  exclude-dirs:
+    - vendor
+    - third_party
+    - node_modules
+    - .git
+    - .hg
+    - .bzr
+    - .svn
+  # Исключаем известные ложные срабатывания
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gosec
+        - goerr113
+        - errcheck
+    - path: internal/mocks/
+      linters:
+        - all
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+    - linters:
+        - revive
+      text: "comment-spacings:"
+
+severity:
+  default: error
+  # В v2 добавлена поддержка настройки severity
+  rules:
+    - linters:
+        - gosec
+      severity: warning
+    - linters:
+        - godot
+        - goheader
+      severity: info

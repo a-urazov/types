@@ -182,6 +182,8 @@ func (bs *BitSet) Intersection(other *BitSet) {
 		newBits := make([]uint64, len(other.bits))
 		copy(newBits, bs.bits)
 		bs.bits = newBits
+	} else {
+		// Sizes are equal, no action needed
 	}
 
 	// Perform bitwise AND
@@ -260,12 +262,9 @@ func (bs *BitSet) Equals(other *BitSet) bool {
 	defer other.mutex.RUnlock()
 
 	// Find the maximum length needed to compare
-	maxLen := len(bs.bits)
-	if len(other.bits) > maxLen {
-		maxLen = len(other.bits)
-	}
+	maxLen := max(len(other.bits), len(bs.bits))
 
-	for i := 0; i < maxLen; i++ {
+	for i := range maxLen {
 		var thisWord, otherWord uint64
 		if i < len(bs.bits) {
 			thisWord = bs.bits[i]
@@ -290,7 +289,7 @@ func (bs *BitSet) ToSlice() []int {
 		if word == 0 {
 			continue
 		}
-		for bitIndex := 0; bitIndex < wordSize; bitIndex++ {
+		for bitIndex := range wordSize {
 			if (word & (1 << uint(bitIndex))) != 0 {
 				result = append(result, wordIndex*wordSize+bitIndex)
 			}

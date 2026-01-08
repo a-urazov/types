@@ -30,13 +30,7 @@ func New(expectedElements int, falsePositiveRate float64) *BloomFilter {
 	bits := uint64(-float64(expectedElements) * math.Log(falsePositiveRate) / (math.Ln2 * math.Ln2))
 
 	// Calculate optimal number of hash functions: k = (m/n) * ln(2)
-	numHashes := int(float64(bits) * math.Ln2 / float64(expectedElements))
-	if numHashes < 1 {
-		numHashes = 1
-	}
-	if numHashes > 32 {
-		numHashes = 32 // reasonable upper limit
-	}
+	numHashes := min(max(int(float64(bits)*math.Ln2/float64(expectedElements)), 1), 32)
 
 	// Ensure bits is at least 1
 	if bits == 0 {
