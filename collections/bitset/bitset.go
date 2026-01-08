@@ -333,10 +333,9 @@ func (bs *BitSet) NextSetBit(fromIndex int) int {
 		word := bs.bits[startWord] >> uint(startBit)
 		if word != 0 {
 			// Find the first set bit in the shifted word
-			for i := 0; i < wordSize-startBit; i++ {
-				if (word & (1 << uint(i))) != 0 {
-					return fromIndex + i
-				}
+			bitIndex := findFirstSetBit(word, 0, wordSize-startBit)
+			if bitIndex != -1 {
+				return fromIndex + bitIndex
 			}
 		}
 	}
@@ -346,14 +345,23 @@ func (bs *BitSet) NextSetBit(fromIndex int) int {
 		word := bs.bits[wordIndex]
 		if word != 0 {
 			// Find the first set bit in this word
-			for i := range wordSize {
-				if (word & (1 << uint(i))) != 0 {
-					return wordIndex*wordSize + i
-				}
+			bitIndex := findFirstSetBit(word, 0, wordSize)
+			if bitIndex != -1 {
+				return wordIndex*wordSize + bitIndex
 			}
 		}
 	}
 
+	return -1
+}
+
+// findFirstSetBit finds the first set bit in a word within the given range [start, end)
+func findFirstSetBit(word uint64, start, end int) int {
+	for i := start; i < end; i++ {
+		if (word & (1 << uint(i))) != 0 {
+			return i
+		}
+	}
 	return -1
 }
 

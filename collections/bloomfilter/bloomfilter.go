@@ -28,7 +28,7 @@ func New(expectedElements int, falsePositiveRate float64) *BloomFilter {
 
 	// Calculate optimal bit array size: m = -n * ln(p) / (ln(2))^2
 	bits := uint64(-float64(expectedElements) * math.Log(falsePositiveRate) / (math.Ln2 * math.Ln2))
-	
+
 	// Calculate optimal number of hash functions: k = (m/n) * ln(2)
 	numHashes := int(float64(bits) * math.Ln2 / float64(expectedElements))
 	if numHashes < 1 {
@@ -74,8 +74,8 @@ func WithSize(bitArraySize uint64, numHashes int) *BloomFilter {
 	}
 }
 
-// Add adds an element to the BloomFilter
-func (bf *BloomFilter) Add(data []byte) {
+// Put adds an element to the BloomFilter
+func (bf *BloomFilter) Put(data []byte) {
 	bf.mutex.Lock()
 	defer bf.mutex.Unlock()
 
@@ -83,7 +83,7 @@ func (bf *BloomFilter) Add(data []byte) {
 	for _, hash := range hashes {
 		wordIndex := hash / 64
 		bitIndex := hash % 64
-		
+
 		if wordIndex < uint64(len(bf.bitSet)) {
 			bf.bitSet[wordIndex] |= 1 << bitIndex
 		}
@@ -101,11 +101,11 @@ func (bf *BloomFilter) MightContain(data []byte) bool {
 	for _, hash := range hashes {
 		wordIndex := hash / 64
 		bitIndex := hash % 64
-		
+
 		if wordIndex >= uint64(len(bf.bitSet)) {
 			return false
 		}
-		
+
 		if bf.bitSet[wordIndex]&(1<<bitIndex) == 0 {
 			return false
 		}
@@ -125,7 +125,7 @@ func (bf *BloomFilter) getHashes(data []byte) []uint64 {
 		var salt [8]byte
 		binary.LittleEndian.PutUint64(salt[:], uint64(i))
 		h.Write(salt[:])
-		
+
 		hash := h.Sum64()
 		hashes[i] = hash % (uint64(len(bf.bitSet)) * 64)
 	}

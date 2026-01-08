@@ -100,34 +100,34 @@ func (cm *ConcurrentMap[K, V]) hashKey(key K) uint32 {
 
 // Set adds or updates a key-value pair in the map
 func (cm *ConcurrentMap[K, V]) Set(key K, value V) {
-	shard := cm.getShard(key)
-	shard.mutex.Lock()
-	defer shard.mutex.Unlock()
+	shardPtr := cm.getShard(key)
+	shardPtr.mutex.Lock()
+	defer shardPtr.mutex.Unlock()
 
-	shard.items[key] = value
+	shardPtr.items[key] = value
 }
 
 // Get retrieves the value for the given key
 // Returns the value and true if the key exists, false otherwise
 func (cm *ConcurrentMap[K, V]) Get(key K) (V, bool) {
-	shard := cm.getShard(key)
-	shard.mutex.RLock()
-	defer shard.mutex.RUnlock()
+	shardPtr := cm.getShard(key)
+	shardPtr.mutex.RLock()
+	defer shardPtr.mutex.RUnlock()
 
-	value, exists := shard.items[key]
+	value, exists := shardPtr.items[key]
 	return value, exists
 }
 
 // Delete removes a key-value pair from the map
 // Returns true if the key existed and was removed, false otherwise
 func (cm *ConcurrentMap[K, V]) Delete(key K) bool {
-	shard := cm.getShard(key)
-	shard.mutex.Lock()
-	defer shard.mutex.Unlock()
+	shardPtr := cm.getShard(key)
+	shardPtr.mutex.Lock()
+	defer shardPtr.mutex.Unlock()
 
-	_, exists := shard.items[key]
+	_, exists := shardPtr.items[key]
 	if exists {
-		delete(shard.items, key)
+		delete(shardPtr.items, key)
 	}
 	return exists
 }
@@ -262,42 +262,42 @@ func (cm *ConcurrentMap[K, V]) ResizeShards(newShardCount int) {
 // TrySet attempts to add a key-value pair if the key doesn't exist
 // Returns true if the key was set, false if it already existed
 func (cm *ConcurrentMap[K, V]) TrySet(key K, value V) bool {
-	shard := cm.getShard(key)
-	shard.mutex.Lock()
-	defer shard.mutex.Unlock()
+	shardPtr := cm.getShard(key)
+	shardPtr.mutex.Lock()
+	defer shardPtr.mutex.Unlock()
 
-	if _, exists := shard.items[key]; exists {
+	if _, exists := shardPtr.items[key]; exists {
 		return false
 	}
 
-	shard.items[key] = value
+	shardPtr.items[key] = value
 	return true
 }
 
 // GetOrSet returns the value for the key if it exists, otherwise sets it to the given value
 // Returns the value and a boolean indicating if it was already present
 func (cm *ConcurrentMap[K, V]) GetOrSet(key K, value V) (V, bool) {
-	shard := cm.getShard(key)
-	shard.mutex.Lock()
-	defer shard.mutex.Unlock()
+	shardPtr := cm.getShard(key)
+	shardPtr.mutex.Lock()
+	defer shardPtr.mutex.Unlock()
 
-	if existingValue, exists := shard.items[key]; exists {
+	if existingValue, exists := shardPtr.items[key]; exists {
 		return existingValue, true
 	}
 
-	shard.items[key] = value
+	shardPtr.items[key] = value
 	return value, false
 }
 
 // Update modifies the value for the given key using the provided function
 // Returns true if the key existed and was updated, false otherwise
 func (cm *ConcurrentMap[K, V]) Update(key K, updateFn func(V) V) bool {
-	shard := cm.getShard(key)
-	shard.mutex.Lock()
-	defer shard.mutex.Unlock()
+	shardPtr := cm.getShard(key)
+	shardPtr.mutex.Lock()
+	defer shardPtr.mutex.Unlock()
 
-	if value, exists := shard.items[key]; exists {
-		shard.items[key] = updateFn(value)
+	if value, exists := shardPtr.items[key]; exists {
+		shardPtr.items[key] = updateFn(value)
 		return true
 	}
 	return false

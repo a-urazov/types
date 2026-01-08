@@ -20,7 +20,7 @@ func TestBloomFilterBasicOperations(t *testing.T) {
 	// Add some elements
 	elements := []string{"apple", "banana", "cherry", "date", "elderberry"}
 	for _, elem := range elements {
-		bf.Add([]byte(elem))
+		bf.Put([]byte(elem))
 	}
 
 	// Check that added elements are present
@@ -49,7 +49,7 @@ func TestBloomFilterFalsePositives(t *testing.T) {
 	// Add some elements
 	addedElements := []string{"test1", "test2", "test3", "test4", "test5"}
 	for _, elem := range addedElements {
-		bf.Add([]byte(elem))
+		bf.Put([]byte(elem))
 	}
 
 	// Check that added elements are definitely present
@@ -92,7 +92,7 @@ func TestBloomFilterWithSize(t *testing.T) {
 	}
 
 	// Add and test elements
-	bf.Add([]byte("hello"))
+	bf.Put([]byte("hello"))
 	if !bf.MightContain([]byte("hello")) {
 		t.Error("Expected 'hello' to be present")
 	}
@@ -109,11 +109,11 @@ func TestBloomFilterMerge(t *testing.T) {
 	bf2 := New(100, 0.01)
 
 	// Add different elements to each
-	bf1.Add([]byte("apple"))
-	bf1.Add([]byte("banana"))
+	bf1.Put([]byte("apple"))
+	bf1.Put([]byte("banana"))
 
-	bf2.Add([]byte("cherry"))
-	bf2.Add([]byte("date"))
+	bf2.Put([]byte("cherry"))
+	bf2.Put([]byte("date"))
 
 	// Merge them
 	err := bf1.Merge(bf2)
@@ -148,7 +148,7 @@ func TestBloomFilterMerge(t *testing.T) {
 
 func TestBloomFilterClone(t *testing.T) {
 	bf := New(100, 0.01)
-	bf.Add([]byte("test"))
+	bf.Put([]byte("test"))
 
 	// Clone the filter
 	clone := bf.Clone()
@@ -162,7 +162,7 @@ func TestBloomFilterClone(t *testing.T) {
 	}
 
 	// Modify original and check clone is unchanged
-	bf.Add([]byte("another"))
+	bf.Put([]byte("another"))
 	if clone.MightContain([]byte("another")) {
 		t.Error("Clone should not be affected by changes to original")
 	}
@@ -182,7 +182,7 @@ func TestBloomFilterEdgeCases(t *testing.T) {
 
 	// Test with empty data
 	bf3 := New(10, 0.1)
-	bf3.Add([]byte{})
+	bf3.Put([]byte{})
 	if !bf3.MightContain([]byte{}) {
 		t.Error("Empty byte slice should be handled correctly")
 	}
@@ -195,21 +195,22 @@ func TestBloomFilterEdgeCases(t *testing.T) {
 }
 
 func TestBloomFilterConcurrency(t *testing.T) {
+	const itemFormat = "item-%d"
 	bf := New(1000, 0.01)
 	done := make(chan bool)
 
 	// Add elements concurrently
 	go func() {
-		for i := 0; i < 100; i++ {
-			bf.Add([]byte(fmt.Sprintf("item-%d", i)))
+		for i := range 100 {
+			bf.Put([]byte(fmt.Sprintf(itemFormat, i)))
 		}
 		done <- true
 	}()
 
 	// Check elements concurrently
 	go func() {
-		for i := 0; i < 50; i++ {
-			bf.MightContain([]byte(fmt.Sprintf("item-%d", i)))
+		for i := range 50 {
+			bf.MightContain([]byte(fmt.Sprintf(itemFormat, i)))
 		}
 		done <- true
 	}()
@@ -219,7 +220,7 @@ func TestBloomFilterConcurrency(t *testing.T) {
 
 	// All added elements should be present
 	for i := 0; i < 100; i++ {
-		if !bf.MightContain([]byte(fmt.Sprintf("item-%d", i))) {
+		if !bf.MightContain([]byte(fmt.Sprintf(itemFormat, i))) {
 			t.Errorf("Element item-%d should be present", i)
 		}
 	}

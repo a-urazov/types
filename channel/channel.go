@@ -301,21 +301,31 @@ func FanOut[T any](input *Channel[T], outputs ...*Channel[T]) {
 			value, err := input.Receive(context.Background())
 			if err != nil {
 				// Входной канал закрыт, закрываем все выходные
-				for _, out := range outputs {
-					out.Close()
-				}
+				closeAllOutputs(outputs)
 				return
 			}
 
 			// Отправляем значение во все выходные каналы
-			for _, out := range outputs {
-				if err := out.Send(context.Background(), value); err != nil {
-					// Если не можем отправить в один из каналов, продолжаем с остальными
-					continue
-				}
-			}
+			sendToAllOutputs(value, outputs)
 		}
 	}()
+}
+
+// вспомогательная функция для закрытия всех выходных каналов
+func closeAllOutputs[T any](outputs []*Channel[T]) {
+	for _, out := range outputs {
+		out.Close()
+	}
+}
+
+// вспомогательная функция для отправки значения во все выходные каналы
+func sendToAllOutputs[T any](value T, outputs []*Channel[T]) {
+	for _, out := range outputs {
+		if err := out.Send(context.Background(), value); err != nil {
+			// Если не можем отправить в один из каналов, продолжаем с остальными
+			continue
+		}
+	}
 }
 
 // Unwrap возвращает базовый канал Go. Это в основном для тестирования и расширенных случаев использования.
@@ -428,7 +438,7 @@ func Take[T any](input *Channel[T], n int) *Channel[T] {
 
 	go func() {
 		defer output.Close()
-		for i := 0; i < n; i++ {
+		for range n {
 			value, err := input.Receive(context.Background())
 			if err != nil {
 				return // канал закрыт
@@ -450,7 +460,15 @@ func Skip[T any](input *Channel[T], n int) *Channel[T] {
 		defer output.Close()
 
 		// Пропускаем первые n значений
-			for i := 0; i < n; i++ {
+		for range n {
+			_, err := input.Receive(context.Background())
+			if err != nil {
+				return // канал закрыт
+			}
+		}
+
+		// Передаем оставшиеся значения в выходной канал
+		for {
 			value, err := input.Receive(context.Background())
 			if err != nil {
 				return // канал закрыт

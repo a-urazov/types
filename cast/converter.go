@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+// Константы для сообщений об ошибках
+const (
+	jsonMarshalErrMsg   = "ошибка маршалинга в JSON: %w"
+	jsonUnmarshalErrMsg = "ошибка анмаршалинга из JSON: %w"
+)
+
 // Converter определяет интерфейс для преобразования типов
 type Converter interface {
 	// Convert преобразует исходное значение в целевой тип
@@ -51,13 +57,13 @@ func To[T any](value any) (T, error) {
 	// Пытаемся преобразовать через JSON
 	jsonData, err := json.Marshal(value)
 	if err != nil {
-		return zero, fmt.Errorf("ошибка маршалинга в JSON: %w", err)
+		return zero, fmt.Errorf(jsonMarshalErrMsg, err)
 	}
 
 	var result T
 	err = json.Unmarshal(jsonData, &result)
 	if err != nil {
-		return zero, fmt.Errorf("ошибка анмаршалинга из JSON: %w", err)
+		return zero, fmt.Errorf(jsonUnmarshalErrMsg, err)
 	}
 
 	return result, nil
@@ -85,13 +91,13 @@ func ConvertTo(source any, targetType reflect.Type) (any, error) {
 	// Преобразование через JSON
 	jsonData, err := json.Marshal(source)
 	if err != nil {
-		return nil, fmt.Errorf("ошибка маршалинга в JSON: %w", err)
+		return nil, fmt.Errorf(jsonMarshalErrMsg, err)
 	}
 
 	result := reflect.New(targetType)
 	err = json.Unmarshal(jsonData, result.Interface())
 	if err != nil {
-		return nil, fmt.Errorf("ошибка анмаршалинга из JSON: %w", err)
+		return nil, fmt.Errorf(jsonUnmarshalErrMsg, err)
 	}
 
 	return result.Elem().Interface(), nil
@@ -219,7 +225,7 @@ func (mc MapConverter) Convert(source any) (any, error) {
 		// Пытаемся преобразовать через JSON
 		jsonData, err := json.Marshal(v)
 		if err != nil {
-			return nil, fmt.Errorf("ошибка маршалинга в JSON: %w", err)
+			return nil, fmt.Errorf(jsonMarshalErrMsg, err)
 		}
 
 		var result map[string]any
@@ -248,7 +254,7 @@ func (sc SliceConverter) Convert(source any) (any, error) {
 			// Пытаемся преобразовать через JSON
 			jsonData, err := json.Marshal(v)
 			if err != nil {
-				return nil, fmt.Errorf("ошибка маршалинга в JSON: %w", err)
+				return nil, fmt.Errorf(jsonMarshalErrMsg, err)
 			}
 
 			var result []any

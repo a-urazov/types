@@ -85,34 +85,10 @@ func parallelIntrosortDepth[T any](s []T, less func(a, b T) bool, depth, maxDept
 		// Рекурсивно сортировать меньшую половину параллельно, большую - последовательно
 		if len(s[:left]) < len(s[right:]) {
 			// Меньшая половина слева
-			if depth > 1 && len(s[:left]) > 16 {
-				var wg sync.WaitGroup
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					parallelIntrosortDepth(s[:left], less, depth-1, maxDepth)
-				}()
-				parallelIntrosortDepth(s[right:], less, depth-1, maxDepth)
-				wg.Wait()
-			} else {
-				parallelIntrosortDepth(s[:left], less, depth-1, maxDepth)
-				parallelIntrosortDepth(s[right:], less, depth-1, maxDepth)
-			}
+			sortPartitions(s[:left], s[right:], less, depth, maxDepth)
 		} else {
 			// Меньшая половина справа
-			if depth > 1 && len(s[right:]) > 16 {
-				var wg sync.WaitGroup
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					parallelIntrosortDepth(s[right:], less, depth-1, maxDepth)
-				}()
-				parallelIntrosortDepth(s[:left], less, depth-1, maxDepth)
-				wg.Wait()
-			} else {
-				parallelIntrosortDepth(s[right:], less, depth-1, maxDepth)
-				parallelIntrosortDepth(s[:left], less, depth-1, maxDepth)
-			}
+			sortPartitions(s[right:], s[:left], less, depth, maxDepth)
 		}
 	}
 
@@ -207,5 +183,19 @@ func heapify[T any](s []T, i, n int, less func(a, b T) bool) {
 	if largest != i {
 		s[i], s[largest] = s[largest], s[i]
 		heapify(s, largest, n, less)
+	}
+}
+
+func sortPartitions[T any](smaller, larger []T, less func(a, b T) bool, depth, maxDepth int) {
+	if depth > 1 && len(smaller) > 16 {
+		var wg sync.WaitGroup
+		wg.Go(func() {
+			parallelIntrosortDepth(smaller, less, depth-1, maxDepth)
+		})
+		parallelIntrosortDepth(larger, less, depth-1, maxDepth)
+		wg.Wait()
+	} else {
+		parallelIntrosortDepth(smaller, less, depth-1, maxDepth)
+		parallelIntrosortDepth(larger, less, depth-1, maxDepth)
 	}
 }
