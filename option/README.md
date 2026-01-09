@@ -2,14 +2,14 @@
 
 Тип `Option` представляет значение, которое может присутствовать или отсутствовать. Это функциональная альтернатива nullable типам, помогающая избежать исключений указателя на ноль, делая отсутствие значения явным.
 
-## Features
+## Особенности
 
-- Generic type with one type parameter: `Option[T any]`
-- Methods to check if a value is present (`IsSome`, `IsNone`)
-- Safe extraction of values with validity checking
-- Helper methods like `GetOrElse` and `GetOrCall` for default values
-- Functional programming methods like `Map`, `FlatMap`, and `Filter`
-- JSON marshaling/unmarshaling support
+- Универсальный тип с одним параметром типа: `Option[T any]`
+- Методы для проверки наличия значения (`IsSome`, `IsNone`)
+- Безопасное извлечение значений с проверкой достоверности
+- Вспомогательные методы, такие как `GetOrElse` и `GetOrCall` для значений по умолчанию
+- Функциональные методы программирования, такие как `Map`, `FlatMap` и `Filter`
+- Поддержка маршалинга/анмаршалинга JSON
 
 ## Usage
 
@@ -53,6 +53,7 @@ func main() {
         fmt.Println(result) // Prints: "Value is: 42"
     }
 }
+
 ```
 
 ## API

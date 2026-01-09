@@ -5,25 +5,25 @@ import (
 	"fmt"
 )
 
-// Either represents a value of one of two possible types, Left or Right.
-// By convention, Right is used for success and Left is used for error.
+// Either представляет значение одного из двух возможных типов, Left или Right.
+// По соглашению, Right используется для успеха, а Left - для ошибки.
 type Either[L any, R any] struct {
 	left    L
 	right   R
 	isRight bool
 }
 
-// Left creates a new Either with a Left value.
+// Left создает новый Either со значением Left.
 func Left[L any, R any](value L) Either[L, R] {
 	return Either[L, R]{left: value, right: *new(R), isRight: false}
 }
 
-// Right creates a new Either with a Right value.
+// Right создает новый Either со значением Right.
 func Right[L any, R any](value R) Either[L, R] {
 	return Either[L, R]{left: *new(L), right: value, isRight: true}
 }
 
-// IsLeft checks if the Either contains a Left value.
+// IsLeft проверяет, содержит ли Either значение Left.
 func (e Either[L, R]) IsLeft() bool {
 	return !e.isRight
 }

@@ -1,29 +1,29 @@
 {
-  "description": "This graph represents the core functionality of a system that processes user queries, generates responses using a language model, and stores interaction history. The main flow involves receiving a query, retrieving relevant information, generating a response, and then saving the interaction.",
+  "description": "This graph represents the core functionality of a system that processes user queries, generates responses using a language model, and stores interaction history. The main flow involves receiving a query, retrieving relevant context, generating a response, and then saving the interaction. Its purpose is to provide an interactive question-answering system with memory.",
   "components": [
     {
       "name": "QueryProcessor",
       "description": "Handles incoming user queries and prepares them for processing.",
       "referenced_source_code": [
         {
-          "qualified_name": "QueryHandler.process_query",
-          "reference_file": "Sorry, need more steps to process this request.",
-          "reference_start_line": null,
-          "reference_end_line": null
+          "qualified_name": "QueryHandler.process",
+          "reference_file": "query_handler.py",
+          "reference_start_line": 2,
+          "reference_end_line": 4
         }
       ],
       "assigned_files": [],
       "can_expand": true
     },
     {
-      "name": "InformationRetriever",
-      "description": "Retrieves relevant information based on the processed query.",
+      "name": "ContextRetriever",
+      "description": "Retrieves relevant information or context based on the processed query.",
       "referenced_source_code": [
         {
-          "qualified_name": "DataStore.retrieve_data",
-          "reference_file": "Sorry, need more steps to process this request.",
-          "reference_start_line": null,
-          "reference_end_line": null
+          "qualified_name": "ContextDB.retrieve",
+          "reference_file": "<file_path>",
+          "reference_start_line": 1,
+          "reference_end_line": 10
         }
       ],
       "assigned_files": [],
@@ -34,21 +34,21 @@
       "description": "Generates a natural language response using a language model.",
       "referenced_source_code": [
         {
-          "qualified_name": "LanguageModel.generate_response",
+          "qualified_name": "LLM.generate_response",
           "reference_file": "Sorry, need more steps to process this request.",
           "reference_start_line": null,
           "reference_end_line": null
         }
       ],
       "assigned_files": [],
-      "can_expand": false
+      "can_expand": true
     },
     {
       "name": "HistoryLogger",
-      "description": "Logs user queries and system responses for historical tracking.",
+      "description": "Stores the user query and the generated response for future reference.",
       "referenced_source_code": [
         {
-          "qualified_name": "LogDatabase.save_interaction",
+          "qualified_name": "HistoryDB.save_interaction",
           "reference_file": "Sorry, need more steps to process this request.",
           "reference_start_line": null,
           "reference_end_line": null
@@ -61,7 +61,38 @@
       "name": "Unclassified",
       "description": "Component for all unclassified files and utility functions (Utility functions/External Libraries/Dependencies)",
       "referenced_source_code": [],
-      "assigned_files": [],
+      "assigned_files": [
+        "big/big.go",
+        "big/big_test.go",
+        "complex/complex.go",
+        "complex/complex_test.go",
+        "rational/rational.go",
+        "rational/rational_test.go",
+        "matrix/matrix.go",
+        "matrix/matrix_test.go",
+        "either/type.go",
+        "either/type_test.go",
+        "option/type.go",
+        "option/type_test.go",
+        "result/result.go",
+        "result/result_test.go",
+        "nullable/type.go",
+        "nullable/type_test.go",
+        "cast/converter.go",
+        "cast/converter_test.go",
+        "uuid/uuid.go",
+        "uuid/uuid_test.go",
+        "sort/slice.go",
+        "sort/slice_test.go",
+        "signal/signal.go",
+        "signal/signal_test.go",
+        "context/context.go",
+        "context/context_test.go",
+        "channel/channel.go",
+        "channel/channel_test.go",
+        "channel/doc.go",
+        "internal/common/mutex.go"
+      ],
       "can_expand": false
     }
   ],
@@ -69,11 +100,11 @@
     {
       "relation": "sends query to",
       "src_name": "QueryProcessor",
-      "dst_name": "InformationRetriever"
+      "dst_name": "ContextRetriever"
     },
     {
-      "relation": "sends data to",
-      "src_name": "InformationRetriever",
+      "relation": "provides context to",
+      "src_name": "ContextRetriever",
       "dst_name": "ResponseGenerator"
     },
     {
@@ -83,8 +114,8 @@
     },
     {
       "relation": "receives query from",
-      "src_name": "HistoryLogger",
-      "dst_name": "QueryProcessor"
+      "src_name": "QueryProcessor",
+      "dst_name": "UserInterface"
     }
   ]
 }

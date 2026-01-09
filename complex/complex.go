@@ -44,7 +44,7 @@ func (c Complex) Multiply(other Complex) Complex {
 func (c Complex) Divide(other Complex) Complex {
 	denominator := other.Real*other.Real + other.Imag*other.Imag
 	if denominator == 0 {
-		panic("division by zero")
+		panic("деление на ноль")
 	}
 
 	return Complex{

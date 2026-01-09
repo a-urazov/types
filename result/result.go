@@ -1,32 +1,32 @@
 package result
 
-// Result represents a type that can contain either a value of type T or an error
+// Result представляет тип, который может содержать либо значение типа T, либо ошибку
 type Result[T any] struct {
 	value T
 	err   error
 }
 
-// Ok creates a Result with a successful value
+// Ok создает Result с успешным значением
 func Ok[T any](value T) Result[T] {
 	return Result[T]{value: value, err: nil}
 }
 
-// Err creates a Result with an error
+// Err создает Result с ошибкой
 func Err[T any](err error) Result[T] {
 	return Result[T]{err: err}
 }
 
-// Ok checks if the Result contains a successful value
+// Ok проверяет, содержит ли Result успешное значение
 func (r Result[T]) Ok() bool {
 	return r.err == nil
 }
 
-// Err checks if the Result contains an error
+// Err проверяет, содержит ли Result ошибку
 func (r Result[T]) Err() bool {
 	return r.err != nil
 }
 
-// Unwrap returns the value and error
+// Unwrap возвращает значение и ошибку
 func (r Result[T]) Unwrap() (T, error) {
 	return r.value, r.err
 }
@@ -58,7 +58,7 @@ func (r Result[T]) Expect(msg string) T {
 // UnwrapErr returns the error if present, otherwise panics
 func (r Result[T]) UnwrapErr() error {
 	if r.err == nil {
-		panic("called UnwrapErr on an Ok value")
+		panic("вызван UnwrapErr для значения Ok")
 	}
 	return r.err
 }

@@ -22,7 +22,7 @@ type Channel[T any] struct {
 // New создает новый канал. Если буфер больше 0, создается буферизованный канал.
 func New[T any](buffer ...int) *Channel[T] {
 	if len(buffer) > 1 {
-		panic("channel.New: too many arguments")
+		panic("channel.New: слишком много аргументов")
 	}
 	if len(buffer) == 0 {
 		return &Channel[T]{

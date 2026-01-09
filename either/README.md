@@ -2,14 +2,14 @@
 
 Тип `Either` представляет значение одного из двух возможных типов - `Left` или `Right`. Это часто используется в функциональном программировании для представления вычислений, которые могут привести либо к значению успеха (`Right`), либо к значению ошибки/сбоя (`Left`).
 
-## Features
+## Особенности
 
-- Generic type with two type parameters: `Either[L any, R any]`
-- Methods to check if the value is `Left` or `Right`
-- Safe extraction of values with validity checking
-- Helper methods like `OrLeft` and `OrRight` for default values
-- Functional programming methods like `Map` and `FlatMap`
-- JSON marshaling/unmarshaling support
+- Универсальный тип с двумя параметрами типа: `Either[L any, R any]`
+- Методы для проверки, является ли значение `Left` или `Right`
+- Безопасное извлечение значений с проверкой достоверности
+- Вспомогательные методы, такие как `OrLeft` и `OrRight` для значений по умолчанию
+- Функциональные методы программирования, такие как `Map` и `FlatMap`
+- Поддержка маршалинга/анмаршалинга JSON
 
 ## Usage
 
@@ -46,6 +46,7 @@ func main() {
         fmt.Println(result) // Prints: "Value is: 42"
     }
 }
+
 ```
 
 ## API

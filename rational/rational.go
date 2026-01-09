@@ -14,7 +14,7 @@ type Rational struct {
 // New creates a new rational number with the given numerator and denominator
 func New(num, den int64) *Rational {
 	if den == 0 {
-		panic("denominator cannot be zero")
+		panic("знаменатель не может быть равен нулю")
 	}
 
 	n := big.NewInt(num)
@@ -33,7 +33,7 @@ func New(num, den int64) *Rational {
 // NewFromBigInt creates a new rational number from big.Int values
 func NewFromBigInt(num, den *big.Int) *Rational {
 	if den.Sign() == 0 {
-		panic("denominator cannot be zero")
+		panic("знаменатель не может быть равен нулю")
 	}
 
 	// Handle negative denominators by moving the sign to the numerator
@@ -93,7 +93,7 @@ func (r *Rational) Multiply(other *Rational) *Rational {
 // Divide divides this rational number by the other
 func (r *Rational) Divide(other *Rational) *Rational {
 	if other.IsZero() {
-		panic("division by zero")
+		panic("деление на ноль")
 	}
 
 	// a/b ÷ c/d = ad / bc
@@ -106,7 +106,7 @@ func (r *Rational) Divide(other *Rational) *Rational {
 // Invert returns the multiplicative inverse (reciprocal) of the rational number
 func (r *Rational) Invert() *Rational {
 	if r.IsZero() {
-		panic("cannot invert zero")
+		panic("нельзя инвертировать ноль")
 	}
 
 	return NewFromBigInt(r.den, r.num)

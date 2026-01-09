@@ -183,7 +183,7 @@ func (b *Big) Multiply(other *Big) *Big {
 // Divide делит одно большое число на другое
 func (b *Big) Divide(other *Big) *Big {
 	if other.IsZero() {
-		panic("division by zero")
+		panic("деление на ноль")
 	}
 
 	// Convert to decimal for calculation to preserve precision
@@ -350,7 +350,7 @@ func (b *Big) Sqrt() *Big {
 		return dec.Sqrt()
 	} else {
 		if b.dec.Sign() < 0 {
-			panic("square root of negative number")
+			panic("квадратный корень отрицательного числа")
 		}
 
 		result := new(big.Float)

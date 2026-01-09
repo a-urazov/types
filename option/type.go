@@ -5,23 +5,23 @@ import (
 	"fmt"
 )
 
-// Option represents a value that may or may not be present.
-// It's a functional alternative to nullable types, avoiding null pointer exceptions.
+// Option представляет значение, которое может присутствовать или отсутствовать.
+// Это функциональная альтернатива nullable типам, позволяющая избежать исключений указателя на ноль.
 type Option[T any] struct {
 	value *T
 }
 
-// Some creates an Option with a value present.
+// Some создает Option со значением.
 func Some[T any](value T) Option[T] {
 	return Option[T]{value: &value}
 }
 
-// None creates an Option with no value present.
+// None создает Option без значения.
 func None[T any]() Option[T] {
 	return Option[T]{value: nil}
 }
 
-// IsSome checks if the Option contains a value.
+// IsSome проверяет, содержит ли Option значение.
 func (o Option[T]) IsSome() bool {
 	return o.value != nil
 }
