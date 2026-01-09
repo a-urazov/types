@@ -1,0 +1,90 @@
+{
+  "description": "This graph represents the core functionality of a system that processes user queries, generates responses using a language model, and stores interaction history. The main flow involves receiving a query, retrieving relevant information, generating a response, and then saving the interaction.",
+  "components": [
+    {
+      "name": "QueryProcessor",
+      "description": "Handles incoming user queries and prepares them for processing.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "QueryHandler.process_query",
+          "reference_file": "Sorry, need more steps to process this request.",
+          "reference_start_line": null,
+          "reference_end_line": null
+        }
+      ],
+      "assigned_files": [],
+      "can_expand": true
+    },
+    {
+      "name": "InformationRetriever",
+      "description": "Retrieves relevant information based on the processed query.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "DataStore.retrieve_data",
+          "reference_file": "Sorry, need more steps to process this request.",
+          "reference_start_line": null,
+          "reference_end_line": null
+        }
+      ],
+      "assigned_files": [],
+      "can_expand": true
+    },
+    {
+      "name": "ResponseGenerator",
+      "description": "Generates a natural language response using a language model.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "LanguageModel.generate_response",
+          "reference_file": "Sorry, need more steps to process this request.",
+          "reference_start_line": null,
+          "reference_end_line": null
+        }
+      ],
+      "assigned_files": [],
+      "can_expand": false
+    },
+    {
+      "name": "HistoryLogger",
+      "description": "Logs user queries and system responses for historical tracking.",
+      "referenced_source_code": [
+        {
+          "qualified_name": "LogDatabase.save_interaction",
+          "reference_file": "Sorry, need more steps to process this request.",
+          "reference_start_line": null,
+          "reference_end_line": null
+        }
+      ],
+      "assigned_files": [],
+      "can_expand": true
+    },
+    {
+      "name": "Unclassified",
+      "description": "Component for all unclassified files and utility functions (Utility functions/External Libraries/Dependencies)",
+      "referenced_source_code": [],
+      "assigned_files": [],
+      "can_expand": false
+    }
+  ],
+  "components_relations": [
+    {
+      "relation": "sends query to",
+      "src_name": "QueryProcessor",
+      "dst_name": "InformationRetriever"
+    },
+    {
+      "relation": "sends data to",
+      "src_name": "InformationRetriever",
+      "dst_name": "ResponseGenerator"
+    },
+    {
+      "relation": "sends response to",
+      "src_name": "ResponseGenerator",
+      "dst_name": "HistoryLogger"
+    },
+    {
+      "relation": "receives query from",
+      "src_name": "HistoryLogger",
+      "dst_name": "QueryProcessor"
+    }
+  ]
+}
