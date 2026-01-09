@@ -30,6 +30,11 @@ logger, err := context.Resolve[Logger](ctx)
 if err != nil {
     log.Fatal(err)
 }
+
+```
+
+```go
+
 ```
 
 ### Регистрация Transient
@@ -44,6 +49,7 @@ context.RegisterTransient[Logger](ctx, func(c *context.Context) (any, error) {
 logger1, _ := context.Resolve[Logger](ctx)
 logger2, _ := context.Resolve[Logger](ctx)
 // logger1 != logger2
+
 ```
 
 ### Регистрация экземпляра
@@ -55,6 +61,7 @@ context.RegisterInstance[Logger](ctx, logger)
 // Всегда возвращает точно этот экземпляр
 resolved, _ := context.Resolve[Logger](ctx)
 // resolved == logger
+
 ```
 
 ### Вложенные зависимости
@@ -83,6 +90,7 @@ context.RegisterSingleton[*Service](ctx, func(c *context.Context) (any, error) {
 
 // Разрешаем Service с автоматическим разрешением его зависимостей
 service, _ := context.Resolve[*Service](ctx)
+
 ```
 
 ## API
@@ -93,6 +101,7 @@ service, _ := context.Resolve[*Service](ctx)
 
 ```go
 ctx := context.New()
+
 ```
 
 ### `Register[T](ctx *Context, constructor ConstructorFunc, lifetime Lifetime) error`
@@ -101,6 +110,7 @@ ctx := context.New()
 
 ```go
 context.Register[Logger](ctx, constructor, context.Singleton)
+
 ```
 
 ### `RegisterSingleton[T](ctx *Context, constructor ConstructorFunc) error`
@@ -111,6 +121,7 @@ context.Register[Logger](ctx, constructor, context.Singleton)
 context.RegisterSingleton[Logger](ctx, func(c *context.Context) (any, error) {
     return &SimpleLogger{}, nil
 })
+
 ```
 
 ### `RegisterTransient[T](ctx *Context, constructor ConstructorFunc) error`
@@ -121,6 +132,7 @@ context.RegisterSingleton[Logger](ctx, func(c *context.Context) (any, error) {
 context.RegisterTransient[Logger](ctx, func(c *context.Context) (any, error) {
     return &SimpleLogger{}, nil
 })
+
 ```
 
 ### `RegisterInstance[T](ctx *Context, instance T) error`
@@ -130,6 +142,7 @@ context.RegisterTransient[Logger](ctx, func(c *context.Context) (any, error) {
 ```go
 logger := &SimpleLogger{name: "app"}
 context.RegisterInstance[Logger](ctx, logger)
+
 ```
 
 ### `Resolve[T](ctx *Context) (T, error)`
@@ -141,6 +154,7 @@ logger, err := context.Resolve[Logger](ctx)
 if err != nil {
     log.Fatal(err)
 }
+
 ```
 
 ### `Contains[T](ctx *Context) bool`
@@ -151,6 +165,7 @@ if err != nil {
 if context.Contains[Logger](ctx) {
     logger, _ := context.Resolve[Logger](ctx)
 }
+
 ```
 
 ### `GetServices(ctx *Context) int`
@@ -159,6 +174,7 @@ if context.Contains[Logger](ctx) {
 
 ```go
 count := context.GetServices(ctx)
+
 ```
 
 ## Lifetime
@@ -234,6 +250,7 @@ func main() {
     service, _ := context.Resolve[*UserService](ctx)
     service.GetUsers()
 }
+
 ```
 
 ## Производительность
@@ -256,6 +273,7 @@ deadline, ok := ctx.Deadline()
 if ok {
     fmt.Printf("Deadline: %v\n", deadline)
 }
+
 ```
 
 #### `Done() <-chan struct{}`
@@ -271,6 +289,7 @@ go func() {
 
 <-ctx.Done()
 fmt.Println("Context canceled")
+
 ```
 
 #### `Err() error`
@@ -283,6 +302,7 @@ ctx.Cancel()
 if err := ctx.Err(); err != nil {
     fmt.Printf("Error: %v\n", err)
 }
+
 ```
 
 #### `Value(key any) any`
@@ -293,6 +313,7 @@ if err := ctx.Err(); err != nil {
 ctx := context.New()
 ctx.SetValue("user", "alice")
 user := ctx.Value("user")
+
 ```
 
 ### Методы отмены
@@ -304,6 +325,7 @@ user := ctx.Value("user")
 ```go
 ctx := context.New()
 ctx.Cancel()
+
 ```
 
 #### `CancelWithError(err error)`
@@ -313,6 +335,7 @@ ctx.Cancel()
 ```go
 ctx := context.New()
 ctx.CancelWithError(fmt.Errorf("custom error"))
+
 ```
 
 ### Методы создания дочерних контекстов
@@ -327,6 +350,7 @@ newCtx, cancel := ctx.WithCancel()
 defer cancel()
 
 // Использование newCtx...
+
 ```
 
 #### `WithDeadline(deadline time.Time) (*Context, context.CancelFunc)`
@@ -338,6 +362,7 @@ ctx := context.New()
 deadline := time.Now().Add(5 * time.Second)
 newCtx, cancel := ctx.WithDeadline(deadline)
 defer cancel()
+
 ```
 
 #### `WithTimeout(timeout time.Duration) (*Context, context.CancelFunc)`
@@ -348,6 +373,7 @@ defer cancel()
 ctx := context.New()
 newCtx, cancel := ctx.WithTimeout(5 * time.Second)
 defer cancel()
+
 ```
 
 #### `WithValue(key any, value any) *Context`
@@ -358,6 +384,7 @@ defer cancel()
 ctx := context.New()
 newCtx := ctx.WithValue("user", "alice")
 user := newCtx.Value("user")
+
 ```
 
 ### Вспомогательные методы
@@ -369,6 +396,7 @@ user := newCtx.Value("user")
 ```go
 ctx := context.New()
 ctx.SetValue("request_id", "12345")
+
 ```
 
 #### `NewWithContext(parent context.Context) *Context`
@@ -378,6 +406,7 @@ ctx.SetValue("request_id", "12345")
 ```go
 parentCtx := context.Background()
 ctx := context.NewWithContext(parentCtx)
+
 ```
 
 ## Примеры
@@ -420,6 +449,7 @@ func main() {
     logger, _ := context.Resolve[Logger](ctx)
     logger.Log("Hello, World!")
 }
+
 ```
 
 ### Пример 2: Работа с Deadline
@@ -433,6 +463,7 @@ defer cancel()
 if err := newCtx.Err(); err == context.DeadlineExceeded {
     fmt.Println("Timeout exceeded")
 }
+
 ```
 
 ### Пример 3: Наследование значений
@@ -446,6 +477,7 @@ childCtx := ctx.WithValue("user_id", "456")
 
 fmt.Println(childCtx.Value("request_id")) // "123"
 fmt.Println(childCtx.Value("user_id"))    // "456"
+
 ```
 
 ### Пример 4: Использование с обычным context.Context API
@@ -465,4 +497,5 @@ func main() {
     ctx := context.New()
     handleRequest(ctx, "user123")
 }
+
 ```

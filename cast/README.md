@@ -13,13 +13,25 @@
 
 ### Функция Convert
 
+```cpp
+#include <string>
+
+void main() {
+    printf("Hello, World!\n");
+    return 0;
+}
+
+```
+
 ```go
 func Convert[From, To any](value From) (To, error)
+
 ```
 
 Преобразует значение типа `From` в значение типа `To`.
 
 **Пример:**
+
 ```go
 // Преобразование int в string
 result, err := converter.Convert[int, string](42)
@@ -27,6 +39,7 @@ if err != nil {
     log.Fatal(err)
 }
 fmt.Println(result) // "42"
+
 ```
 
 ### Интерфейс Converter
@@ -35,6 +48,7 @@ fmt.Println(result) // "42"
 type Converter interface {
     Convert(source any) (any, error)
 }
+
 ```
 
 Интерфейс для создания собственных конвертеров.
@@ -48,6 +62,7 @@ type Converter interface {
 converter := converter.StringConverter{}
 result, _ := converter.Convert(42)
 fmt.Println(result) // "42"
+
 ```
 
 #### NumberConverter
@@ -57,6 +72,7 @@ fmt.Println(result) // "42"
 converter := converter.NumberConverter{}
 result, _ := converter.Convert("123.45")
 fmt.Println(result) // 123.45
+
 ```
 
 #### BoolConverter
@@ -66,6 +82,7 @@ fmt.Println(result) // 123.45
 converter := converter.BoolConverter{}
 result, _ := converter.Convert("true")
 fmt.Println(result) // true
+
 ```
 
 #### MapConverter
@@ -74,6 +91,7 @@ fmt.Println(result) // true
 ```go
 converter := converter.MapConverter{}
 result, _ := converter.Convert(struct{Name string}{Name: "John"})
+
 ```
 
 #### SliceConverter
@@ -82,12 +100,14 @@ result, _ := converter.Convert(struct{Name string}{Name: "John"})
 ```go
 converter := converter.SliceConverter{}
 result, _ := converter.Convert([]int{1, 2, 3})
+
 ```
 
 ### Функция GetConverter
 
 ```go
 func GetConverter(targetType string) Converter
+
 ```
 
 Возвращает подходящий конвертер для целевого типа.
@@ -100,16 +120,19 @@ func GetConverter(targetType string) Converter
 - `"slice"`, `"array"` - SliceConverter
 
 **Пример:**
+
 ```go
 converter := converter.GetConverter("string")
 result, _ := converter.Convert(42)
 fmt.Println(result) // "42"
+
 ```
 
 ### Функция ConvertTo
 
 ```go
 func ConvertTo(source any, targetType reflect.Type) (any, error)
+
 ```
 
 Преобразует значение к целевому типу, используя `reflect`.
@@ -117,6 +140,7 @@ func ConvertTo(source any, targetType reflect.Type) (any, error)
 ## Примеры использования
 
 ### Базовое преобразование
+
 ```go
 package main
 
@@ -141,9 +165,11 @@ func main() {
     }
     fmt.Println(result2) // "3.14"
 }
+
 ```
 
 ### Использование специализированных конвертеров
+
 ```go
 package main
 
@@ -168,9 +194,11 @@ func main() {
     result, _ = boolConv.Convert("yes")
     fmt.Println(result) // true
 }
+
 ```
 
 ### Использование GetConverter
+
 ```go
 package main
 
@@ -184,9 +212,11 @@ func main() {
     result, _ := conv.Convert("123.45")
     fmt.Println(result) // 123.45
 }
+
 ```
 
 ### Создание собственного конвертера
+
 ```go
 package main
 
@@ -207,6 +237,7 @@ func main() {
     result, _ := conv.Convert(42)
     fmt.Println(result) // "[CUSTOM] 42"
 }
+
 ```
 
 ## Поддерживаемые преобразования
@@ -239,6 +270,7 @@ result, err := converter.Convert[string, int]("not a number")
 if err != nil {
     log.Printf("ошибка преобразования: %v", err)
 }
+
 ```
 
 ## Производительность
