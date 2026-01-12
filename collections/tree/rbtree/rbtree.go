@@ -123,9 +123,14 @@ func (t *RBTree[K, V]) Delete(key K) bool {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	// Placeholder implementation - proper deletion in red-black trees is complex
-	// and requires handling multiple cases to maintain tree properties
-	return false
+	node := t.search(key)
+	if node == nil {
+		return false
+	}
+
+	t.deleteNode(node)
+	t.count--
+	return true
 }
 
 // Size returns the number of elements in the tree
@@ -315,27 +320,80 @@ func (t *RBTree[K, V]) deleteFix(node *Node[K, V]) {
 	node.Color = Black
 }
 
-// deleteFixForNil fixes the red-black tree when deleting a black node that has no children
+// deleteFixForNil handles the case where a black leaf node is deleted, which can cause a double black violation.
 func (t *RBTree[K, V]) deleteFixForNil(parent *Node[K, V], node *Node[K, V]) {
-	node = nil // node is now nil, we'll work with the parent
-	child := parent.Left
-	if parent.Right != node { // if node was the right child
-		child = parent.Right
-	}
-
-	if child == nil { // if the child is also nil
-		// We need to work our way up the tree to fix the double black issue
-		t.fixDoubleBlack(parent)
-	} else {
-		// If there's a child, color it black if it was red
-		child.Color = Black
-	}
+	// This is a placeholder for a more complex scenario that needs to be handled
+	// when a black leaf node is removed.
+	// A full implementation would require rebalancing by considering sibling and parent colors.
+	t.fixDoubleBlack(parent)
 }
 
-// fixDoubleBlack handles the double black violation during deletion
+// fixDoubleBlack handles the double black violation during deletion.
 func (t *RBTree[K, V]) fixDoubleBlack(node *Node[K, V]) {
-	// This is a simplified version - full implementation would be more complex
-	// In a real implementation, we'd need to handle all cases of double black violations
+	for node != t.root && (node == nil || node.Color == Black) {
+		if node == node.Parent.Left {
+			sibling := node.Parent.Right
+			if sibling.Color == Red {
+				sibling.Color = Black
+				node.Parent.Color = Red
+				t.leftRotate(node.Parent)
+				sibling = node.Parent.Right
+			}
+			if (sibling.Left == nil || sibling.Left.Color == Black) &&
+				(sibling.Right == nil || sibling.Right.Color == Black) {
+				sibling.Color = Red
+				node = node.Parent
+			} else {
+				if sibling.Right == nil || sibling.Right.Color == Black {
+					if sibling.Left != nil {
+						sibling.Left.Color = Black
+					}
+					sibling.Color = Red
+					t.rightRotate(sibling)
+					sibling = node.Parent.Right
+				}
+				sibling.Color = node.Parent.Color
+				node.Parent.Color = Black
+				if sibling.Right != nil {
+					sibling.Right.Color = Black
+				}
+				t.leftRotate(node.Parent)
+				node = t.root
+			}
+		} else {
+			sibling := node.Parent.Left
+			if sibling.Color == Red {
+				sibling.Color = Black
+				node.Parent.Color = Red
+				t.rightRotate(node.Parent)
+				sibling = node.Parent.Left
+			}
+			if (sibling.Right == nil || sibling.Right.Color == Black) &&
+				(sibling.Left == nil || sibling.Left.Color == Black) {
+				sibling.Color = Red
+				node = node.Parent
+			} else {
+				if sibling.Left == nil || sibling.Left.Color == Black {
+					if sibling.Right != nil {
+						sibling.Right.Color = Black
+					}
+					sibling.Color = Red
+					t.leftRotate(sibling)
+					sibling = node.Parent.Left
+				}
+				sibling.Color = node.Parent.Color
+				node.Parent.Color = Black
+				if sibling.Left != nil {
+					sibling.Left.Color = Black
+				}
+				t.rightRotate(node.Parent)
+				node = t.root
+			}
+		}
+	}
+	if node != nil {
+		node.Color = Black
+	}
 }
 
 // transplant replaces one subtree as a child of its parent with another subtree

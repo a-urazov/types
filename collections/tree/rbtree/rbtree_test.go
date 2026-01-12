@@ -91,27 +91,63 @@ func TestRBTree_Delete(t *testing.T) {
 	tree.Set(10, "ten")
 	tree.Set(5, "five")
 	tree.Set(15, "fifteen")
+	tree.Set(3, "three")
+	tree.Set(7, "seven")
 
+	if tree.Size() != 5 {
+		t.Errorf("Expected size 5, got %d", tree.Size())
+	}
+
+	// Test deletion of a leaf node
+	if !tree.Delete(3) {
+		t.Errorf("Expected deletion to return true")
+	}
+	if tree.Size() != 4 {
+		t.Errorf("Expected size 4 after deleting 3, got %d", tree.Size())
+	}
+	if tree.Contains(3) {
+		t.Errorf("Expected key 3 to be deleted")
+	}
+
+	// Test deletion of a node with one child
+	if !tree.Delete(7) {
+		t.Errorf("Expected deletion to return true")
+	}
 	if tree.Size() != 3 {
-		t.Errorf("Expected size 3, got %d", tree.Size())
+		t.Errorf("Expected size 3 after deleting 7, got %d", tree.Size())
+	}
+	if tree.Contains(7) {
+		t.Errorf("Expected key 7 to be deleted")
 	}
 
-	// For this simplified implementation, deletion is not fully implemented
-	// so we expect it to return false
-	if tree.Delete(5) {
-		t.Errorf("Expected deletion to return false (not yet implemented)")
+	// Test deletion of a node with two children
+	if !tree.Delete(10) {
+		t.Errorf("Expected deletion to return true")
+	}
+	if tree.Size() != 2 {
+		t.Errorf("Expected size 2 after deleting 10, got %d", tree.Size())
+	}
+	if tree.Contains(10) {
+		t.Errorf("Expected key 10 to be deleted")
 	}
 
-	if tree.Size() != 3 { // Size should remain the same since deletion isn't implemented
-		t.Errorf("Expected size to remain 3 (deletion not implemented), got %d", tree.Size())
+	// Test deletion of the root
+	if !tree.Delete(15) {
+		t.Errorf("Expected deletion to return true")
+	}
+	if tree.Size() != 1 {
+		t.Errorf("Expected size 1 after deleting 15, got %d", tree.Size())
+	}
+	if tree.Contains(15) {
+		t.Errorf("Expected key 15 to be deleted")
 	}
 
-	if !tree.Contains(5) { // Key should still be present since deletion isn't implemented
-		t.Errorf("Expected key 5 to still be present (deletion not implemented)")
-	}
-
-	if tree.Delete(99) { // Trying to delete non-existent key
+	// Test deletion of non-existent key
+	if tree.Delete(99) {
 		t.Errorf("Expected deletion of non-existent key to return false")
+	}
+	if tree.Size() != 1 {
+		t.Errorf("Expected size to remain 1, got %d", tree.Size())
 	}
 }
 
